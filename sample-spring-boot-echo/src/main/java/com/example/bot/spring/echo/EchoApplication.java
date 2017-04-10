@@ -39,7 +39,7 @@ public class EchoApplication {
     @EventMapping
     public ImageMessage handleImageMessageEvent(MessageEvent<MessageContent> event) {
         System.out.println("event: " + event);
-        return new ImageMessage("http://i.imgur.com/EFepAe7.jpg","http://i.imgur.com/EFepAe7.jpg");
+        return new ImageMessage("https://i.imgur.com/EFepAe7.jpg","https://i.imgur.com/EFepAe7.jpg");
     }
 
     @EventMapping
