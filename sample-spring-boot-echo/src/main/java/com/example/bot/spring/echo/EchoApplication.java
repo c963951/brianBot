@@ -16,23 +16,16 @@
 
 package com.example.bot.spring.echo;
 
-import java.util.Collections;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
-import com.linecorp.bot.model.event.message.ImageMessageContent;
+import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.ImageMessage;
-import com.linecorp.bot.model.message.ImagemapMessage;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.model.message.imagemap.ImagemapArea;
-import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
-import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
-import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -44,14 +37,9 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public ImagemapMessage handleImageMessageEvent(MessageEvent<ImageMessageContent> event) {
+    public ImageMessage handleImageMessageEvent(MessageEvent<MessageContent> event) {
         System.out.println("event: " + event);
-        return new ImagemapMessage(
-                "http://i.imgur.com/EFepAe7.jpg", "hoge",
-                new ImagemapBaseSize(1040, 1040),
-                Collections.singletonList(
-                        new MessageImagemapAction("hoge",
-                                                  new ImagemapArea(0, 0, 20, 20))));
+        return new ImageMessage("http://i.imgur.com/EFepAe7.jpg","http://i.imgur.com/EFepAe7.jpg");
     }
 
     @EventMapping
