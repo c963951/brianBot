@@ -51,7 +51,8 @@ public class EchoApplication {
 		System.out.println("event: " + prevPage);
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 		String currPage2 = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
-		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage2).select(".title > a");
+		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage2)
+				.select(".title > a");
 		System.out.println(links.size());
 		String a = "";
 		for (Element link : links) {
