@@ -19,6 +19,7 @@ package com.example.bot.spring.echo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
@@ -53,25 +54,51 @@ public class EchoApplication {
 				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
 
 		System.out.println("event: " + prevPage);
-		List<String> lastPostsLink = new ArrayList<String>();
-		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 		
+		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 		Integer lastPage = Integer.valueOf(prevPage) + 1;
-		Integer loadLastPosts = 10;
+		Integer loadLastPosts = 5;
+		List<String> lastPostsLink = new ArrayList<String>();
         while ( loadLastPosts > lastPostsLink.size() ){
         	String currPage = String.format(gossipIndexPage, lastPage--);
 			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
 					.select(".title > a");
 			System.out.println(links.size());
 			for (Element link : links) {
-				lastPostsLink.add(link.attr("href"));
+				String[] result = analyzeFeed(link.attr("href"));
+				if(result.length != 0){
+					lastPostsLink.add(result[0] + "\r\n" + result[1]);
+				}
+				
 			}
         }
-		return new TextMessage(String.join("\r\n", lastPostsLink));
+		return new TextMessage(String.join("", lastPostsLink));
 	}
 
 	@EventMapping
 	public void handleDefaultMessageEvent(Event event) {
 		System.out.println("event: " + event);
 	}
+	
+	public String[] analyzeFeed(String url) {
+    	
+    	// 取得 Jsoup 物件，稍後要做多次 select
+        Document feed = 
+        	CrawlerPack.start()
+		        .addCookie("over18","1")                // 八卦版進入需要設定cookie
+		        .getFromHtml("https://www.ptt.cc"+url);           // 遠端資料格式為 HTML
+        // 2. 文章標題
+        String feedTitle = feed.select("span:contains(標題) + span").text();
+        
+        // 3. 按推總數
+        Integer feedLikeCount = 
+        		countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
+        if(feedLikeCount < 80) return new String[0];
+        
+    	return new String[] {feedTitle,"https://www.ptt.cc"+url};
+    }
+	
+	public Integer countReply(Elements reply){
+    	return reply.text().split(" ").length;
+    }
 }
