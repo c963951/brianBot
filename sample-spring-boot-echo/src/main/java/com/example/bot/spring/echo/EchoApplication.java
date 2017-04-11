@@ -36,7 +36,7 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 @LineMessageHandler
 public class EchoApplication {
 
-	Integer loadLastPosts = 10;
+	
 
 	public static void main(String[] args) {
 		SpringApplication.run(EchoApplication.class, args);
@@ -44,6 +44,7 @@ public class EchoApplication {
 
 	@EventMapping
 	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) {
+		Integer loadLastPosts = 10;
 		System.out.println("event: " + event);
 		String board = "Gossiping";
 		if (event.getMessage().getText().startsWith("@")) {
