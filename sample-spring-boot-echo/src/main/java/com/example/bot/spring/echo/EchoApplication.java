@@ -53,25 +53,19 @@ public class EchoApplication {
 
 		System.out.println("event: " + prevPage);
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
-
-		// 目前最末頁 index 編號
 		Integer lastPage = Integer.valueOf(prevPage) + 1;
-
 		List<String> lastPostsLink = new ArrayList<String>();
-		Integer loadLastPosts = 3;
-
-		while (loadLastPosts > lastPostsLink.size()) {
+		while ( 5 > lastPostsLink.size() ){
 			String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
 			String currPage = String.format(gossipIndexPage, lastPage--);
-			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".title > a");
-
+			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
+					.select(".title > a");
+			System.out.println(links.size());
 			for (Element link : links) {
 				lastPostsLink.add(link.attr("href"));
-				System.out.println(links.size());
 			}
 		}
-
-		return new TextMessage(String.join(", ", lastPostsLink) + "==========" + prevPage);
+		return new TextMessage(lastPostsLink.size() + "==========" + prevPage + "====" +lastPage);
 	}
 
 	@EventMapping
