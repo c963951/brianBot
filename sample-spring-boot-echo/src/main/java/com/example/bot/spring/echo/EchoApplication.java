@@ -57,7 +57,7 @@ public class EchoApplication {
 		
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 		Integer lastPage = Integer.valueOf(prevPage) + 1;
-		Integer loadLastPosts = 5;
+		Integer loadLastPosts = 2;
 		List<String> lastPostsLink = new ArrayList<String>();
         while ( loadLastPosts > lastPostsLink.size() ){
         	String currPage = String.format(gossipIndexPage, lastPage--);
@@ -66,10 +66,9 @@ public class EchoApplication {
 			System.out.println(links.size());
 			for (Element link : links) {
 				String[] result = analyzeFeed(link.attr("href"));
-				if(result.length != 0){
+				if(result != null){
 					lastPostsLink.add(result[0] + "\r\n" + result[1]);
 				}
-				
 			}
         }
 		return new TextMessage(String.join("", lastPostsLink));
@@ -93,7 +92,9 @@ public class EchoApplication {
         // 3. 按推總數
         Integer feedLikeCount = 
         		countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if(feedLikeCount < 80) return new String[0];
+        if (feedLikeCount < 50)	{
+        	return null;
+        }
         
     	return new String[] {feedTitle,"https://www.ptt.cc"+url};
     }
