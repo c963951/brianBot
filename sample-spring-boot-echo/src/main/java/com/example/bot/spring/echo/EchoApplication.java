@@ -16,10 +16,19 @@
 
 package com.example.bot.spring.echo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.linecorp.bot.model.ReplyMessage;
+import com.github.abola.crawler.CrawlerPack;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -32,18 +41,114 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 @SpringBootApplication
 @LineMessageHandler
 public class EchoApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(EchoApplication.class, args);
-    }
+	
+    // 取得最後幾篇的文章數量
+    static Integer loadLastPosts = 2;
+    
+	public static void main(String[] args) {
+		SpringApplication.run(EchoApplication.class, args);
+	}
 
-    @EventMapping
-    public ImageMessage handleImageMessageEvent(MessageEvent<MessageContent> event) {
-        System.out.println("event: " + event);
-        return new ImageMessage("https://i.imgur.com/EFepAe7.jpg","https://i.imgur.com/EFepAe7.jpg");
-    }
+	@EventMapping
+	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) {
+		System.out.println("event: " + event);
+		if("@Gossiping".equals(event.getMessage().getText()));
+		String gossipMainPage = "https://www.ptt.cc/bbs/Gossiping/index.html";
+	    String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
+		String prevPage = CrawlerPack.start()
+                .addCookie("over18","1")                // 八卦版進入需要設定cookie
+                .getFromHtml(gossipMainPage)            // 遠端資料格式為 HTML
+                .select(".action-bar a:matchesOwn(上頁)")  // 取得右上角『前一頁』的內容
+                .get(0).attr("href")
+                .replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
+        // 目前最末頁 index 編號
+        Integer lastPage = Integer.valueOf(prevPage)+1;
 
-    @EventMapping
-    public void handleDefaultMessageEvent(Event event) {
-        System.out.println("event: " + event);
-    }
+        List<String> lastPostsLink = new ArrayList<String>();
+        
+        while ( loadLastPosts > lastPostsLink.size() ){
+            String currPage = String.format(gossipIndexPage, lastPage--);
+
+            Elements links =
+                CrawlerPack.start()
+                    .addCookie("over18", "1")
+                    .getFromHtml(currPage)
+                    .select(".title > a");
+
+            for( Element link: links){
+            	String result = analyzeFeed(link.attr("href"));
+            	if("".equals(result)) continue;
+            	lastPostsLink.add(result);
+            	// 重要：為什麼要有這一行？
+            	try{Thread.sleep(150);}catch(Exception e){}
+            }
+        }
+		return new TextMessage(lastPostsLink.stream().map(Object::toString)
+                .collect(Collectors.joining("%0D%0A")));
+	}
+
+	@EventMapping
+	public void handleDefaultMessageEvent(Event event) {
+		System.out.println("event: " + event);
+	}
+
+	/**
+	 * 分析輸入的文章，簡易統計
+	 * 
+	 * @param url
+	 * @return
+	 */
+	static String analyzeFeed(String url) {
+
+		// 取得 Jsoup 物件，稍後要做多次 select
+		Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
+				.getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
+
+		// 1. 文章作者
+		String feedAuthor = feed.select("span:contains(作者) + span").text();
+
+		// 2. 文章標題
+		String feedTitle = feed.select("span:contains(標題) + span").text();
+
+		// 3. 按推總數
+		Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
+		if (feedLikeCount < 80)
+			return "";
+
+		// 4. 不重複推文數
+		Integer feedLikeCountNoRep = countReplyNoRepeat(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
+
+		// 5. 按噓總數
+		Integer feedUnLikeCount = countReply(feed.select(".push-tag:matchesOwn(噓) + .push-userid"));
+
+		// 6. 不重複噓文數
+		Integer feedUnLikeCountNoRep = countReplyNoRepeat(feed.select(".push-tag:matchesOwn(噓) + .push-userid"));
+
+		// 7. 不重複噓文數
+		Integer feedReplyCountNoRep = countReplyNoRepeat(feed.select(".push-tag + .push-userid"));
+
+		String output = "\"" + feedAuthor + "\"," + "\"" + feedTitle + "\"," + feedLikeCount + "," + feedLikeCountNoRep
+				+ "," + feedUnLikeCount + "," + feedUnLikeCountNoRep + "," + feedReplyCountNoRep;
+		return url+"/n";
+	}
+
+	/**
+	 * 推文人數總計
+	 * 
+	 * @param reply
+	 * @return
+	 */
+	static Integer countReply(Elements reply) {
+		return reply.text().split(" ").length;
+	}
+
+	/**
+	 * 推文人數總計
+	 * 
+	 * @param reply
+	 * @return
+	 */
+	static Integer countReplyNoRepeat(Elements reply) {
+		return new HashSet<String>(Arrays.asList(reply.text().split(" "))).size();
+	}
 }
