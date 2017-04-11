@@ -52,15 +52,20 @@ public class EchoApplication {
 	@EventMapping
 	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) {
 		System.out.println("event: " + event);
-		if("@Gossiping".equals(event.getMessage().getText()));
-		String gossipMainPage = "https://www.ptt.cc/bbs/Gossiping/index.html";
-	    String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
+		String board = "Gossiping";
+		if(event.getMessage().getText().startsWith("@")) {
+			String[] arg = event.getMessage().getText().split("@");
+			board = arg[1];
+		}
+		String gossipMainPage = "https://www.ptt.cc/bbs/"+board+"/index.html";
+	    String gossipIndexPage = "https://www.ptt.cc/bbs/"+board+"/index%s.html";
+		
 		String prevPage = CrawlerPack.start()
                 .addCookie("over18","1")                // 八卦版進入需要設定cookie
                 .getFromHtml(gossipMainPage)            // 遠端資料格式為 HTML
                 .select(".action-bar a:matchesOwn(上頁)")  // 取得右上角『前一頁』的內容
                 .get(0).attr("href")
-                .replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
+                .replaceAll("/bbs/"+board+"/index([0-9]+).html", "$1");
         // 目前最末頁 index 編號
         Integer lastPage = Integer.valueOf(prevPage)+1;
 
