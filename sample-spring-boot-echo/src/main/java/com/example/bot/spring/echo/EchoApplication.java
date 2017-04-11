@@ -16,7 +16,6 @@
 
 package com.example.bot.spring.echo;
 
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -54,9 +53,7 @@ public class EchoApplication {
 		String currPage = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
 		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
 				.select(".title > a");
-		for (Element link : links) {
-			System.out.println(link.attr("href"));
-		}
+		System.out.println(links.size());
 		return new TextMessage("" + links.size());
 	}
 
