@@ -61,7 +61,7 @@ public class EchoApplication {
 		for (Element link : links) {
 			lastPostsLink.add(link.attr("href"));
 		}
-		return new TextMessage(links.size() + "\n" + String.join(", ", lastPostsLink) + "\r\n" + prevPage);
+		return new TextMessage(String.join(", ", lastPostsLink) + "\r\n");
 	}
 
 	@EventMapping
