@@ -16,6 +16,11 @@
 
 package com.example.bot.spring.echo;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -46,12 +51,27 @@ public class EchoApplication {
 		String gossipMainPage = "https://www.ptt.cc/bbs/Gossiping/index.html";
 
 		String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
-				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href")
-				.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
+				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
 		
 		System.out.println("event: " + prevPage);
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
-		return new TextMessage(""+prevPage);
+		Integer lastPage = Integer.valueOf(prevPage)+1;
+		
+        List<String> lastPostsLink = new ArrayList<>();
+        Integer loadLastPosts = 10;
+        String pttIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
+        while (loadLastPosts > lastPostsLink.size()){
+            String currPage = String.format(pttIndexPage, lastPage--);
+
+            Elements links = CrawlerPack.start().addCookie("over18", "1")
+                    .getFromHtml(currPage)
+                    .select(".title > a");
+
+            for(Element link: links) {
+            	lastPostsLink.add(link.attr("href"));
+            }
+        }
+		return new TextMessage(String.join("%0D%0A", lastPostsLink));
 	}
 
 	@EventMapping
