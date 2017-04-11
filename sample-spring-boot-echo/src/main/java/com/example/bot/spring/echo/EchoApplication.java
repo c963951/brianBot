@@ -60,7 +60,8 @@ public class EchoApplication {
 		for (Element link : links) {
 			a = link.attr("href");
 		}
-		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage + "%0D%0A" + currPage);
+		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage 
+				+ "%0D%0A" + currPage + "====" + lastPage);
 	}
 
 	@EventMapping
