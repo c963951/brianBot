@@ -69,31 +69,36 @@ public class EchoApplication {
 			Elements links = CrawlerPack.start().addCookie("over18", "1")
 					.getFromHtml(currPage).select(".title > a");
 			for (Element link : links) {
-				String result = analyzeFeed(link.attr("href"));
+				String result = link.attr("href");
+				lastPostsLink.add(result);
+				/*
 				if ("".equals(result)) {
 					continue;
 				}
 				lastPostsLink.add(result);
+				// 重要：為什麼要有這一行？
 				try {
 					Thread.sleep(150);
 				} catch (Exception e) {
 				}
+				*/
 			}
 		}
-		//String.join("%0D%0A", lastPostsLink)
-		return new TextMessage("");
+		return new TextMessage(String.join("%0D%0A", lastPostsLink));
 	}
 
 	@EventMapping
 	public void handleDefaultMessageEvent(Event event) {
 		System.out.println("event: " + event);
 	}
-
+	/*
 	public String analyzeFeed(String url) {
 
-		Document feed = CrawlerPack.start().addCookie("over18", "1")
-				.getFromHtml("https://www.ptt.cc" + url);
+		// 取得 Jsoup 物件，稍後要做多次 select
+		Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
+				.getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
 
+		// 3. 按推總數
 		Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
 		if (feedLikeCount < 80) {
 			return "";
@@ -108,4 +113,5 @@ public class EchoApplication {
 	public Integer countReplyNoRepeat(Elements reply) {
 		return new HashSet<String>(Arrays.asList(reply.text().split(" "))).size();
 	}
+	*/
 }
