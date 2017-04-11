@@ -47,6 +47,7 @@ public class EchoApplication {
 			return new TextMessage("");
 		}
 		String gossipMainPage = "https://www.ptt.cc/bbs/Gossiping/index.html";
+		String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
 
 		String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
 				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
@@ -54,14 +55,19 @@ public class EchoApplication {
 		System.out.println("event: " + prevPage);
 		List<String> lastPostsLink = new ArrayList<String>();
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
-		String currPage2 = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
-		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage2)
-				.select(".title > a");
-		System.out.println(links.size());
-		for (Element link : links) {
-			lastPostsLink.add(link.attr("href"));
-		}
-		return new TextMessage(String.join(", ", lastPostsLink) + "\r\n");
+		
+		Integer lastPage = Integer.valueOf(prevPage) + 1;
+		Integer loadLastPosts = 10;
+        while ( loadLastPosts > lastPostsLink.size() ){
+        	String currPage = String.format(gossipIndexPage, lastPage--);
+			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
+					.select(".title > a");
+			System.out.println(links.size());
+			for (Element link : links) {
+				lastPostsLink.add(link.attr("href"));
+			}
+        }
+		return new TextMessage(String.join("\r\n", lastPostsLink));
 	}
 
 	@EventMapping
