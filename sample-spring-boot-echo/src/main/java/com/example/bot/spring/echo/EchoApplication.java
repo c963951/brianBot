@@ -103,7 +103,7 @@ public class EchoApplication {
 	 * @param url
 	 * @return
 	 */
-	static String analyzeFeed(String url) {
+	public String analyzeFeed(String url) {
 
 		// 取得 Jsoup 物件，稍後要做多次 select
 		Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
@@ -143,7 +143,7 @@ public class EchoApplication {
 	 * @param reply
 	 * @return
 	 */
-	static Integer countReply(Elements reply) {
+	public Integer countReply(Elements reply) {
 		return reply.text().split(" ").length;
 	}
 
@@ -153,7 +153,7 @@ public class EchoApplication {
 	 * @param reply
 	 * @return
 	 */
-	static Integer countReplyNoRepeat(Elements reply) {
+	public Integer countReplyNoRepeat(Elements reply) {
 		return new HashSet<String>(Arrays.asList(reply.text().split(" "))).size();
 	}
 }
