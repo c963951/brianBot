@@ -58,7 +58,7 @@ public class EchoApplication {
 		for (Element link : links) {
 			a = link.attr("href");
 		}
-		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage + "%0D%0A");
+		return new TextMessage(links.size() + "\n" + a + "\r\n" + prevPage + "/n/r" + "===");
 	}
 
 	@EventMapping
