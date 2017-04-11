@@ -53,14 +53,14 @@ public class EchoApplication {
 		Integer lastPage = Integer.valueOf(prevPage) + 1;
 		String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
 		String currPage = String.format(gossipIndexPage, lastPage--);
-		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
-				.select(".title > a");
+		String currPage2 = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
+		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage2).select(".title > a");
 		System.out.println(links.size());
 		String a = "";
 		for (Element link : links) {
 			a = link.attr("href");
 		}
-		return new TextMessage(links.size() + "======" + a + "==========" + prevPage);
+		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage + "%0D%0A" + currPage);
 	}
 
 	@EventMapping
