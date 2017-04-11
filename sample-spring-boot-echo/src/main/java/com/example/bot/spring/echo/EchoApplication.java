@@ -60,24 +60,7 @@ public class EchoApplication {
 				.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
 		
 		System.out.println("event: " + prevPage);
-		Integer lastPage = Integer.valueOf(prevPage);
-
-        List<String> lastPostsLink = new ArrayList<>();
-        Integer loadLastPosts = 10;
-        String pttIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
-        while (loadLastPosts > lastPostsLink.size()){
-            String currPage = String.format(pttIndexPage, lastPage--);
-
-            Elements links =
-                CrawlerPack.start()
-                    .addCookie("over18", "1")
-                    .getFromHtml(currPage)
-                    .select(".title > a");
-
-            for( Element link: links) {
-            	lastPostsLink.add(link.attr("href"));
-            }
-        }
+		
 		return new TextMessage(""+prevPage);
 	}
 
@@ -86,18 +69,4 @@ public class EchoApplication {
 		System.out.println("event: " + event);
 	}
 	
-	public String analyzeFeed(String url){
-		Document feed = CrawlerPack.start().addCookie("over18","1")
-			        .getFromHtml("https://www.ptt.cc"+url);
-        Integer feedLikeCount = 
-        		countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if(feedLikeCount < 80) {
-        	return "";
-        }
-		return url;
-	}
-	
-	public Integer countReply(Elements reply){
-    	return reply.text().split(" ").length;
-    }
 }
