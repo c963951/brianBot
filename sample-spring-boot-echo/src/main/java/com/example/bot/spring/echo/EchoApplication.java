@@ -16,9 +16,6 @@
 
 package com.example.bot.spring.echo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
@@ -54,14 +51,13 @@ public class EchoApplication {
 		System.out.println("event: " + prevPage);
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 
-		List<String> lastPostsLink = new ArrayList<>();
 		String currPage = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
 		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
 				.select(".title > a");
 		for (Element link : links) {
-			lastPostsLink.add(link.attr("href"));
+			System.out.println(link.attr("href"));
 		}
-		return new TextMessage(String.join("%0D%0A", lastPostsLink));
+		return new TextMessage(""+links.size());
 	}
 
 	@EventMapping
