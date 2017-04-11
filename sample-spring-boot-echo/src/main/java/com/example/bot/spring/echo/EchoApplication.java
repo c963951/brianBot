@@ -50,9 +50,6 @@ public class EchoApplication {
 
 		System.out.println("event: " + prevPage);
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
-		Integer lastPage = Integer.valueOf(prevPage) + 1;
-		String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
-		String currPage = String.format(gossipIndexPage, lastPage--);
 		String currPage2 = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
 		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage2).select(".title > a");
 		System.out.println(links.size());
@@ -60,8 +57,7 @@ public class EchoApplication {
 		for (Element link : links) {
 			a = link.attr("href");
 		}
-		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage 
-				+ "%0D%0A" + currPage + "====" + lastPage);
+		return new TextMessage(links.size() + "%0D%0A" + a + "%0D%0A" + prevPage + "%0D%0A");
 	}
 
 	@EventMapping
