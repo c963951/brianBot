@@ -16,8 +16,6 @@
 
 package com.example.bot.spring.echo;
 
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -52,14 +50,8 @@ public class EchoApplication {
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
 
 		String currPage = "https://www.ptt.cc/bbs/Gossiping/index22719.html";
-		Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
-				.select(".title > a");
-		System.out.println(links.size());
-		String a = "";
-		for (Element link : links) {
-			a = link.attr("href");
-		}
-		return new TextMessage(links.size() + "======" + a);
+		
+		return new TextMessage(currPage);
 	}
 
 	@EventMapping
