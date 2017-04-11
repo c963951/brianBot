@@ -40,8 +40,7 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 @LineMessageHandler
 public class EchoApplication {
 
-	// 取得最後幾篇的文章數量
-	static Integer loadLastPosts = 10;
+	Integer loadLastPosts = 10;
 
 	public static void main(String[] args) {
 		SpringApplication.run(EchoApplication.class, args);
@@ -67,21 +66,22 @@ public class EchoApplication {
 
 		while (loadLastPosts > lastPostsLink.size()) {
 			String currPage = String.format(gossipIndexPage, lastPage--);
-			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".title > a");
+			Elements links = CrawlerPack.start().addCookie("over18", "1")
+					.getFromHtml(currPage).select(".title > a");
 			for (Element link : links) {
 				String result = analyzeFeed(link.attr("href"));
 				if ("".equals(result)) {
 					continue;
 				}
 				lastPostsLink.add(result);
-				// 重要：為什麼要有這一行？
 				try {
 					Thread.sleep(150);
 				} catch (Exception e) {
 				}
 			}
 		}
-		return new TextMessage(lastPostsLink.stream().map(Object::toString).collect(Collectors.joining("%0D%0A")));
+		//String.join("%0D%0A", lastPostsLink)
+		return new TextMessage("");
 	}
 
 	@EventMapping
@@ -91,11 +91,9 @@ public class EchoApplication {
 
 	public String analyzeFeed(String url) {
 
-		// 取得 Jsoup 物件，稍後要做多次 select
-		Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
-				.getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
+		Document feed = CrawlerPack.start().addCookie("over18", "1")
+				.getFromHtml("https://www.ptt.cc" + url);
 
-		// 3. 按推總數
 		Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
 		if (feedLikeCount < 80) {
 			return "";
