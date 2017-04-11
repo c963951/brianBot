@@ -57,7 +57,7 @@ public class EchoApplication {
 		for (Element link : links) {
 			System.out.println(link.attr("href"));
 		}
-		return new TextMessage(""+links.size());
+		return new TextMessage("" + links.size());
 	}
 
 	@EventMapping
