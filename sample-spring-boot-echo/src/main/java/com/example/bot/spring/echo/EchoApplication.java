@@ -17,12 +17,8 @@
 package com.example.bot.spring.echo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
@@ -64,54 +60,11 @@ public class EchoApplication {
 
 		List<String> lastPostsLink = new ArrayList<String>();
 
-		while (loadLastPosts > lastPostsLink.size()) {
-			String currPage = String.format(gossipIndexPage, lastPage--);
-			Elements links = CrawlerPack.start().addCookie("over18", "1")
-					.getFromHtml(currPage).select(".title > a");
-			for (Element link : links) {
-				String result = link.attr("href");
-				lastPostsLink.add(result);
-				/*
-				if ("".equals(result)) {
-					continue;
-				}
-				lastPostsLink.add(result);
-				// 重要：為什麼要有這一行？
-				try {
-					Thread.sleep(150);
-				} catch (Exception e) {
-				}
-				*/
-			}
-		}
-		return new TextMessage(String.join("%0D%0A", lastPostsLink));
+		return new TextMessage("");
 	}
 
 	@EventMapping
 	public void handleDefaultMessageEvent(Event event) {
 		System.out.println("event: " + event);
 	}
-	/*
-	public String analyzeFeed(String url) {
-
-		// 取得 Jsoup 物件，稍後要做多次 select
-		Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
-				.getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
-
-		// 3. 按推總數
-		Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-		if (feedLikeCount < 80) {
-			return "";
-		}
-		return url;
-	}
-
-	public Integer countReply(Elements reply) {
-		return reply.text().split(" ").length;
-	}
-
-	public Integer countReplyNoRepeat(Elements reply) {
-		return new HashSet<String>(Arrays.asList(reply.text().split(" "))).size();
-	}
-	*/
 }
