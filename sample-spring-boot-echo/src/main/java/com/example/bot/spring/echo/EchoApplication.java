@@ -56,8 +56,8 @@ public class EchoApplication {
 		System.out.println("event: " + prevPage);
 		
 		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
-		Integer lastPage = Integer.valueOf(prevPage) + 1;
-		Integer loadLastPosts = 2;
+		Integer lastPage = Integer.valueOf(prevPage);
+		Integer loadLastPosts = 1;
 		List<String> lastPostsLink = new ArrayList<String>();
         while ( loadLastPosts > lastPostsLink.size() ){
         	String currPage = String.format(gossipIndexPage, lastPage--);
@@ -66,12 +66,12 @@ public class EchoApplication {
 			System.out.println(links.size());
 			for (Element link : links) {
 				String[] result = analyzeFeed(link.attr("href"));
-				if(result != null){
+				if (result != null) {
 					lastPostsLink.add(result[0] + "\r\n" + result[1]);
 				}
 			}
         }
-		return new TextMessage(String.join("", lastPostsLink));
+		return new TextMessage(String.join("\r\n", lastPostsLink));
 	}
 
 	@EventMapping
@@ -92,7 +92,7 @@ public class EchoApplication {
         // 3. 按推總數
         Integer feedLikeCount = 
         		countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if (feedLikeCount < 50)	{
+        if (feedLikeCount < 80)	{
         	return null;
         }
         
