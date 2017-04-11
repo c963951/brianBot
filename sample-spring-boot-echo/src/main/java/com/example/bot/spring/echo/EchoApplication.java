@@ -43,7 +43,7 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 public class EchoApplication {
 	
     // 取得最後幾篇的文章數量
-    static Integer loadLastPosts = 2;
+    static Integer loadLastPosts = 10;
     
 	public static void main(String[] args) {
 		SpringApplication.run(EchoApplication.class, args);
@@ -129,7 +129,7 @@ public class EchoApplication {
 
 		String output = "\"" + feedAuthor + "\"," + "\"" + feedTitle + "\"," + feedLikeCount + "," + feedLikeCountNoRep
 				+ "," + feedUnLikeCount + "," + feedUnLikeCountNoRep + "," + feedReplyCountNoRep;
-		return url+"/n";
+		return url;
 	}
 
 	/**
