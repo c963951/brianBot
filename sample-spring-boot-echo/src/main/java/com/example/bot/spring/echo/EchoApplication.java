@@ -54,12 +54,6 @@ public class EchoApplication {
 		String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
 		String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
 
-		String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
-				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href")
-				.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
-		Integer lastPage = Integer.valueOf(prevPage) + 1;
-
-		List<String> lastPostsLink = new ArrayList<String>();
 
 		return new TextMessage("");
 	}
