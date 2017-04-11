@@ -57,15 +57,13 @@ public class EchoApplication {
 		List<String> lastPostsLink = new ArrayList<String>();
 		while (5 > lastPostsLink.size()) {
 			String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
-			String currPage = String.format(gossipIndexPage, lastPage--);
-			Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage)
-					.select(".title > a");
-			System.out.println(links.size());
-			for (Element link : links) {
+			for (Element link : CrawlerPack.start().addCookie("over18", "1")
+					.getFromHtml(String.format(gossipIndexPage, lastPage--))
+					.select(".title > a")) {
 				lastPostsLink.add(link.attr("href"));
 			}
 		}
-		return new TextMessage(lastPostsLink.size() + "==========" + prevPage + "====" +lastPage);
+		return new TextMessage(lastPostsLink.size() + "==" + prevPage + "==" +lastPage);
 	}
 
 	@EventMapping
