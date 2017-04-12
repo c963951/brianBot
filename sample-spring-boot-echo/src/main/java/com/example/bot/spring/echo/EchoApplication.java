@@ -73,11 +73,11 @@ public class EchoApplication {
 			for (Element link : links) {
 				String[] result = analyzeFeed(link.attr("href"));
 				if (result != null) {
-					lastPostsLink.add(result[0] + " " + result[1]);
+					lastPostsLink.add(result[0] + "\r\n" + result[1]);
 				}
 			}
         }
-		return new TextMessage(String.join(" ", lastPostsLink));
+		return new TextMessage(String.join("\r\n", lastPostsLink));
 	}
 
 	@EventMapping
@@ -98,7 +98,7 @@ public class EchoApplication {
         // 3. 按推總數
         Integer feedLikeCount = 
         		countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if (feedLikeCount < 80)	{
+        if (feedLikeCount < 30)	{
         	return null;
         }
         
