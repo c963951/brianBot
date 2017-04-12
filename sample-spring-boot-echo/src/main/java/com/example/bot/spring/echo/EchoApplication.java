@@ -51,7 +51,7 @@ public class EchoApplication {
 			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
 		} else {
-			return null;
+			return new TextMessage(event.getMessage().getText());
 		}
 		String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
 		String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
