@@ -47,8 +47,8 @@ public class EchoApplication {
 		CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
 		System.out.println("event: " + event);
 		String board = "Gossiping";
-		if (event.getMessage().getText().startsWith("$")) {
-			String[] message = event.getMessage().getText().split("$");
+		if (event.getMessage().getText().startsWith("%")) {
+			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
 		} else {
 			return new TextMessage("");
