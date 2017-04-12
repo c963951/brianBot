@@ -19,6 +19,7 @@ package com.example.bot.spring.echo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.impl.SimpleLog;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -43,19 +44,24 @@ public class EchoApplication {
 
 	@EventMapping
 	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) {
+		CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
 		System.out.println("event: " + event);
-		if (!event.getMessage().getText().startsWith("@")) {
+		String board = "Gossiping";
+		if (event.getMessage().getText().startsWith("$")) {
+			String[] message = event.getMessage().getText().split("$");
+			board = message[1];
+		} else {
 			return new TextMessage("");
 		}
-		String gossipMainPage = "https://www.ptt.cc/bbs/Gossiping/index.html";
-		String gossipIndexPage = "https://www.ptt.cc/bbs/Gossiping/index%s.html";
+		String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
+		String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
 
 		String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
 				.select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
 
 		System.out.println("event: " + prevPage);
 		
-		prevPage = prevPage.replaceAll("/bbs/Gossiping/index([0-9]+).html", "$1");
+		prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
 		Integer lastPage = Integer.valueOf(prevPage);
 		Integer loadLastPosts = 1;
 		List<String> lastPostsLink = new ArrayList<String>();
