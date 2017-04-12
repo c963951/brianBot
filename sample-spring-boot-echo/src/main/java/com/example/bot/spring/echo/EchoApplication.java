@@ -51,7 +51,7 @@ public class EchoApplication {
 			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
 		} else {
-			return new TextMessage("");
+			return null;
 		}
 		String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
 		String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
@@ -63,7 +63,7 @@ public class EchoApplication {
 		
 		prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
 		Integer lastPage = Integer.valueOf(prevPage);
-		Integer loadLastPosts = 5;
+		Integer loadLastPosts = 2;
 		List<String> lastPostsLink = new ArrayList<String>();
         while ( loadLastPosts > lastPostsLink.size() ){
         	String currPage = String.format(gossipIndexPage, lastPage--);
@@ -73,11 +73,11 @@ public class EchoApplication {
 			for (Element link : links) {
 				String[] result = analyzeFeed(link.attr("href"));
 				if (result != null) {
-					lastPostsLink.add(result[0] + "\r\n" + result[1]);
+					lastPostsLink.add(result[0] + "\n" + result[1]);
 				}
 			}
         }
-		return new TextMessage(String.join("\r\n", lastPostsLink));
+		return new TextMessage(String.join("\n", lastPostsLink));
 	}
 
 	@EventMapping
