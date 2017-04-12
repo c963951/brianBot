@@ -63,7 +63,7 @@ public class EchoApplication {
 		
 		prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
 		Integer lastPage = Integer.valueOf(prevPage);
-		Integer loadLastPosts = 1;
+		Integer loadLastPosts = 5;
 		List<String> lastPostsLink = new ArrayList<String>();
         while ( loadLastPosts > lastPostsLink.size() ){
         	String currPage = String.format(gossipIndexPage, lastPage--);
