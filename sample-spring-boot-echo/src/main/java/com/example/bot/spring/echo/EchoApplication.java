@@ -73,11 +73,11 @@ public class EchoApplication {
 			for (Element link : links) {
 				String[] result = analyzeFeed(link.attr("href"));
 				if (result != null) {
-					lastPostsLink.add(result[0] + "\n" + result[1]);
+					lastPostsLink.add(result[0] + " " + result[1]);
 				}
 			}
         }
-		return new TextMessage(String.join("\n", lastPostsLink));
+		return new TextMessage(String.join(" ", lastPostsLink));
 	}
 
 	@EventMapping
