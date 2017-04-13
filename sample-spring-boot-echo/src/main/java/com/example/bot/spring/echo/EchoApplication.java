@@ -61,7 +61,7 @@ public class EchoApplication {
 			board = message[1];
 		} else if (event.getMessage().getText().startsWith("#")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
-		} else if (event.getMessage().getText().startsWith("$")){
+		} else if (event.getMessage().getText().startsWith("\\$")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else {
 			return null;
@@ -160,7 +160,7 @@ public class EchoApplication {
 		
 	}
 	public static String cngetHoroscope (String message) throws Exception {
-		String[] result = message.split("$");
+		String[] result = message.split("\\$");
 		String sign = result[1];
 		
 		sign = sign.toLowerCase();
