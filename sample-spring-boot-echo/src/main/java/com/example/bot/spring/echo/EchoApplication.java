@@ -16,12 +16,14 @@
 
 package com.example.bot.spring.echo;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -45,7 +47,7 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 @LineMessageHandler
 public class EchoApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		SpringApplication.run(EchoApplication.class, args);
 	}
 
@@ -58,6 +60,8 @@ public class EchoApplication {
 			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
 		} else if (event.getMessage().getText().startsWith("#")){
+			return new TextMessage(getHoroscope(event.getMessage().getText()));
+		} else if (event.getMessage().getText().startsWith("##")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else {
 			return null;
@@ -154,5 +158,47 @@ public class EchoApplication {
 			return "Problem retrieving horoscope";
 		}
 		
+	}
+	public static String cngetHoroscope (String message) throws Exception {
+		String[] result = message.split("##");
+		String sign = result[1];
+		
+		sign = sign.toLowerCase();
+		
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("牡羊", "baiyang");
+		map.put("金牛", "jinniu");
+		map.put("雙子", "shuangzi");
+		map.put("巨蟹", "juxie");
+		map.put("獅子", "shizi");
+		map.put("處女", "chunv");
+		map.put("天秤", "tiancheng");
+		map.put("天蠍", "tianxie");
+		map.put("射手", "sheshou");
+		map.put("魔羯", "mojie");
+		map.put("水瓶", "shuiping");
+		map.put("雙魚", "shuangyu");
+		
+		URL u=new URL("http://route.showapi.com/872-1?showapi_appid=35583&star="+map.get(sign)+"&needTomorrow=&needWeek=&needMonth=&needYear=&showapi_sign=5532b24c2d4646cf9799a36930288cb8");
+        InputStream in=u.openStream();
+        ByteArrayOutputStream out=new ByteArrayOutputStream();
+        try {
+            byte buf[]=new byte[1024];
+            int read = 0;
+            while ((read = in.read(buf)) > 0) {
+                out.write(buf, 0, read);
+            }
+        }  finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+        byte b[]=out.toByteArray( );
+        JSONObject obj = new JSONObject(new String(b,"utf-8"));
+        JSONObject showapi_res_body = (JSONObject) obj.get("showapi_res_body");
+        JSONObject day =  (JSONObject) showapi_res_body.get("day");
+        String horoscope = day.getString("work_txt");
+        System.out.println(horoscope);
+        return horoscope;
 	}
 }
