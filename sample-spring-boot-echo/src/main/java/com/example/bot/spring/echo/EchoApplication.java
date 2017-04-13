@@ -16,10 +16,17 @@
 
 package com.example.bot.spring.echo;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.apache.commons.logging.impl.SimpleLog;
+import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -50,8 +57,10 @@ public class EchoApplication {
 		if (event.getMessage().getText().startsWith("%")) {
 			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
-		} else {
+		} else if (event.getMessage().getText().startsWith("#")){
 			return new TextMessage(event.getMessage().getText());
+		} else {
+			return null;
 		}
 		String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
 		String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
@@ -108,4 +117,39 @@ public class EchoApplication {
 	public Integer countReply(Elements reply){
     	return reply.text().split(" ").length;
     }
+	
+	public static String getHoroscope(String message) {
+		
+		String[] result = message.split("#");
+		String sign = result[1];
+		
+		sign = sign.toLowerCase();
+		
+		String url = "http://theastrologer-api.herokuapp.com/api/horoscope/" + sign + "/today";
+		String charset = "UTF-8";
+		
+		try {
+			URLConnection connection = new URL(url).openConnection();
+			connection.setRequestProperty("Accept-Charset", charset);
+			InputStream response = connection.getInputStream();
+
+			String jsonBody = "";
+			
+			try (Scanner scanner = new Scanner(response)) {
+				jsonBody += scanner.useDelimiter("\\A").next();
+			}
+			
+			JSONObject obj = new JSONObject(jsonBody);
+			String horoscope = obj.getString("horoscope");
+				
+			return horoscope;
+		}
+		catch (MalformedURLException e) {
+			return "Problem retrieving horoscope";
+		}
+		catch(IOException e) {
+			return "Problem retrieving horoscope";
+		}
+		
+	}
 }
