@@ -52,7 +52,7 @@ public class EchoApplication {
 	}
 
 	@EventMapping
-	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) {
+	public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
 		CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
 		System.out.println("event: " + event);
 		String board = "Gossiping";
