@@ -80,6 +80,9 @@ public class EchoApplication {
 					.select(".title > a");
 			System.out.println(links.size());
 			for (Element link : links) {
+				if (loadLastPosts > lastPostsLink.size()) {
+					break;
+				}
 				String[] result = analyzeFeed(link.attr("href"));
 				if (result != null) {
 					lastPostsLink.add(result[0] + "\r\n" + result[1]);
