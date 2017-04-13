@@ -58,7 +58,7 @@ public class EchoApplication {
 			String[] message = event.getMessage().getText().split("%");
 			board = message[1];
 		} else if (event.getMessage().getText().startsWith("#")){
-			return new TextMessage(event.getMessage().getText());
+			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else {
 			return null;
 		}
