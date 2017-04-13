@@ -62,7 +62,7 @@ public class EchoApplication {
 		} else if (event.getMessage().getText().startsWith("#")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else if (event.getMessage().getText().startsWith("&")){
-			return new TextMessage(getHoroscope(event.getMessage().getText()));
+			return new TextMessage(cngetHoroscope(event.getMessage().getText()));
 		} else {
 			return null;
 		}
