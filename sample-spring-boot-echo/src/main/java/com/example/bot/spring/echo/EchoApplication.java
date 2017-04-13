@@ -61,7 +61,7 @@ public class EchoApplication {
 			board = message[1];
 		} else if (event.getMessage().getText().startsWith("#")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
-		} else if (event.getMessage().getText().startsWith("\\$")){
+		} else if (event.getMessage().getText().startsWith("$")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else {
 			return null;
