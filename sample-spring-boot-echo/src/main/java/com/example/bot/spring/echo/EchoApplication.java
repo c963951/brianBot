@@ -43,9 +43,11 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -59,7 +61,7 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public TextMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+    public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         System.out.println("event: " + event);
         String board = "Gossiping";
@@ -105,6 +107,14 @@ public class EchoApplication {
     @EventMapping
     public void handleDefaultMessageEvent(Event event) {
         System.out.println("event: " + event);
+    }
+    
+    @EventMapping
+    public ImageMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+        if (event.getMessage().getText().startsWith("&")) {
+            return new ImageMessage(getYoutubeImg(event.getMessage().getText()), null);
+        }
+        return null;
     }
 
     public String[] analyzeFeed(String url) {
@@ -220,5 +230,39 @@ public class EchoApplication {
             }
         }
         return "";
+    }
+    
+    public static String getYoutubeImg(String message) throws Exception {
+        
+        String[] result = message.split("&");
+        String queryTerm = result[1];
+        
+        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer()  {
+            public void initialize(HttpRequest request) throws IOException {
+            }
+        }).setApplicationName("youtube-cmdline-search-sample").build();
+        
+        YouTube.Search.List search = youtube.search().list("id,snippet");
+        
+        String apiKey = "AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk";
+        search.setKey(apiKey);
+        search.setQ(queryTerm);
+        search.setType("video");
+        search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
+        search.setMaxResults(1L);
+        SearchListResponse searchResponse = search.execute();
+        List<SearchResult> searchResultList = searchResponse.getItems();
+        if (searchResultList != null) {
+            for(SearchResult singleVideo : searchResultList) {
+                ResourceId rId = singleVideo.getId();
+                if (rId.getKind().equals("youtube#video")) {
+                    Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
+                    return thumbnail.getUrl();
+                }
+            }
+           
+        }
+        return null;
+        
     }
 }
