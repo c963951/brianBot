@@ -16,7 +16,6 @@
 
 package com.example.bot.spring.echo;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -62,7 +61,7 @@ public class EchoApplication {
 		} else if (event.getMessage().getText().startsWith("#")){
 			return new TextMessage(getHoroscope(event.getMessage().getText()));
 		} else if (event.getMessage().getText().startsWith("&")){
-			return new TextMessage(cngetHoroscope(event.getMessage().getText()));
+			return new TextMessage(getHoroscopeEn(event.getMessage().getText()));
 		} else {
 			return null;
 		}
@@ -125,9 +124,9 @@ public class EchoApplication {
     	return reply.text().split(" ").length;
     }
 	
-	public static String getHoroscope(String message) {
+	public static String getHoroscopeEn(String message) {
 		
-		String[] result = message.split("#");
+		String[] result = message.split("&");
 		String sign = result[1];
 		
 		sign = sign.toLowerCase();
@@ -159,46 +158,29 @@ public class EchoApplication {
 		}
 		
 	}
-	public static String cngetHoroscope (String message) throws Exception {
-		String[] result = message.split("&");
+	public static String getHoroscope (String message) throws Exception {
+		String[] result = message.split("#");
 		String sign = result[1];
 		
 		sign = sign.toLowerCase();
 		
 		HashMap<String,String> map = new HashMap<String,String>();
-		map.put("牡羊", "baiyang");
-		map.put("金牛", "jinniu");
-		map.put("雙子", "shuangzi");
-		map.put("巨蟹", "juxie");
-		map.put("獅子", "shizi");
-		map.put("處女", "chunv");
-		map.put("天秤", "tiancheng");
-		map.put("天蠍", "tianxie");
-		map.put("射手", "sheshou");
-		map.put("魔羯", "mojie");
-		map.put("水瓶", "shuiping");
-		map.put("雙魚", "shuangyu");
+		map.put("牡羊", "Aries");
+		map.put("金牛", "Taurus");
+		map.put("雙子", "Gemini");
+		map.put("巨蟹", "Cancer");
+		map.put("獅子", "Leo");
+		map.put("處女", "Virgo");
+		map.put("天秤", "Libra");
+		map.put("天蠍", "Scorpio");
+		map.put("射手", "Sagittarius");
+		map.put("魔羯", "Capricorn");
+		map.put("水瓶", "Aquarius");
+		map.put("雙魚", "Pisces");
 		
-		URL u=new URL("http://route.showapi.com/872-1?showapi_appid=35583&star="+map.get(sign)+"&needTomorrow=&needWeek=&needMonth=&needYear=&showapi_sign=5532b24c2d4646cf9799a36930288cb8");
-        InputStream in=u.openStream();
-        ByteArrayOutputStream out=new ByteArrayOutputStream();
-        try {
-            byte buf[]=new byte[1024];
-            int read = 0;
-            while ((read = in.read(buf)) > 0) {
-                out.write(buf, 0, read);
-            }
-        }  finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-        byte b[]=out.toByteArray( );
-        JSONObject obj = new JSONObject(new String(b,"utf-8"));
-        JSONObject showapi_res_body = (JSONObject) obj.get("showapi_res_body");
-        JSONObject day =  (JSONObject) showapi_res_body.get("day");
-        String horoscope = day.getString("work_txt");
-        System.out.println(horoscope);
-        return horoscope;
+		String uri = "http://www.daily-zodiac.com/zodiac/" + map.get(sign);
+		String day = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac > h3").text();
+		String article = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac .article").text();
+        return day + "\r\n" + article;
 	}
 }
