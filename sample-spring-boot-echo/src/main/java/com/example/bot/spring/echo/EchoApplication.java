@@ -157,7 +157,7 @@ public class EchoApplication {
                 }
                 Elements titles = link.select(".title > a");
                 for (Element title : titles) {
-                    lastPostsLink.add(title.attr("href") + "\r\n" + title.ownText());
+                    lastPostsLink.add("https://www.ptt.cc" + title.attr("href") + "\r\n" + title.ownText());
                 }
             }
         }
