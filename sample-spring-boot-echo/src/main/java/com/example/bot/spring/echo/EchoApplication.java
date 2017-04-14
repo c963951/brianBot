@@ -137,19 +137,19 @@ public class EchoApplication {
             String currPage = String.format(gossipIndexPage, lastPage--);
             Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".r-ent");
             for (Element link : links) {
-                boolean MoreThen80 = false;
+                boolean MoreThen50 = false;
                 Elements pushs = link.select(".nrec span");
                 for (Element push : pushs) {
                     String a = push.ownText();
-                    if (StringUtils.isNumeric(a) && Integer.parseInt(a) > 80) {
-                        MoreThen80 = true;
+                    if (StringUtils.isNumeric(a) && Integer.parseInt(a) > 50) {
+                        MoreThen50 = true;
                         break;
                     } else if ("爆".equals(a)) {
-                        MoreThen80 = true;
+                        MoreThen50 = true;
                         break;
                     }
                 }
-                if (!MoreThen80) {
+                if (!MoreThen50) {
                     continue;
                 }
                 if (lastPostsLink.size() > loadLastPosts) {
@@ -157,7 +157,7 @@ public class EchoApplication {
                 }
                 Elements titles = link.select(".title > a");
                 for (Element title : titles) {
-                    lastPostsLink.add("https://www.ptt.cc" + title.attr("href") + "\r\n" + title.ownText());
+                    lastPostsLink.add( title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
                 }
             }
         }
