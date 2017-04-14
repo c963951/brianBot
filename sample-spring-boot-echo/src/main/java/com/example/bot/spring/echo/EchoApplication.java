@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -134,15 +135,29 @@ public class EchoApplication {
         List<String> lastPostsLink = new ArrayList<String>();
         while (loadLastPosts > lastPostsLink.size()) {
             String currPage = String.format(gossipIndexPage, lastPage--);
-            Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".title > a");
-            System.out.println(links.size());
+            Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".r-ent");
             for (Element link : links) {
+                boolean MoreThen80 = false;
+                Elements pushs = link.select(".nrec span");
+                for (Element push : pushs) {
+                    String a = push.ownText();
+                    if (StringUtils.isNumeric(a) && Integer.parseInt(a) > 80) {
+                        MoreThen80 = true;
+                        break;
+                    } else if ("爆".equals(a)) {
+                        MoreThen80 = true;
+                        break;
+                    }
+                }
+                if (!MoreThen80) {
+                    continue;
+                }
                 if (lastPostsLink.size() > loadLastPosts) {
                     break;
                 }
-                String[] result = analyzeFeed(link.attr("href"));
-                if (result != null) {
-                    lastPostsLink.add(result[0] + "\r\n" + result[1]);
+                Elements titles = link.select(".title > a");
+                for (Element title : titles) {
+                    lastPostsLink.add(title.attr("href") + "\r\n" + title.ownText());
                 }
             }
         }
