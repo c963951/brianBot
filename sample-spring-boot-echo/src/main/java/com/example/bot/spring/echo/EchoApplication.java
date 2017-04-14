@@ -48,6 +48,7 @@ import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.ImageMessage;
+import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -61,7 +62,10 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+    public List<Message> handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+        List<Message> test = new ArrayList(); 
+        test.add(new TextMessage("123"));
+        test.add(new ImageMessage("https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg","https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg"));
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         System.out.println("event: " + event);
         String board = "Gossiping";
@@ -69,9 +73,11 @@ public class EchoApplication {
             String[] message = event.getMessage().getText().split("%");
             board = message[1];
         } else if (event.getMessage().getText().startsWith("#")) {
-            return new TextMessage(getHoroscope(event.getMessage().getText()));
+//            return new TextMessage(getHoroscope(event.getMessage().getText()));
+            return test;
         } else if (event.getMessage().getText().startsWith("&")) {
-            return new TextMessage(getYoutube(event.getMessage().getText()));
+//            return new TextMessage(getYoutube(event.getMessage().getText()));
+           return test;
         } else {
             return null;
         }
@@ -101,7 +107,8 @@ public class EchoApplication {
                 }
             }
         }
-        return new TextMessage(String.join("\r\n", lastPostsLink));
+//        return new TextMessage(String.join("\r\n", lastPostsLink));
+        return test;
     }
 
     @EventMapping
@@ -109,14 +116,6 @@ public class EchoApplication {
         System.out.println("event: " + event);
     }
     
-    @EventMapping
-    public ImageMessage handleImageMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
-        if (event.getMessage().getText().startsWith("&")) {
-            return new ImageMessage(getYoutubeImg(event.getMessage().getText()), null);
-        }
-        return null;
-    }
-
     public String[] analyzeFeed(String url) {
 
         // 取得 Jsoup 物件，稍後要做多次 select
@@ -230,39 +229,5 @@ public class EchoApplication {
             }
         }
         return "";
-    }
-    
-    public static String getYoutubeImg(String message) throws Exception {
-        
-        String[] result = message.split("&");
-        String queryTerm = result[1];
-        
-        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer()  {
-            public void initialize(HttpRequest request) throws IOException {
-            }
-        }).setApplicationName("youtube-cmdline-search-sample").build();
-        
-        YouTube.Search.List search = youtube.search().list("id,snippet");
-        
-        String apiKey = "AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk";
-        search.setKey(apiKey);
-        search.setQ(queryTerm);
-        search.setType("video");
-        search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
-        search.setMaxResults(1L);
-        SearchListResponse searchResponse = search.execute();
-        List<SearchResult> searchResultList = searchResponse.getItems();
-        if (searchResultList != null) {
-            for(SearchResult singleVideo : searchResultList) {
-                ResourceId rId = singleVideo.getId();
-                if (rId.getKind().equals("youtube#video")) {
-                    Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-                    return thumbnail.getUrl();
-                }
-            }
-           
-        }
-        return null;
-        
     }
 }
