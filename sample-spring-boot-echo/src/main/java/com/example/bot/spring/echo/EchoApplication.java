@@ -45,16 +45,13 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
-import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -72,8 +69,6 @@ public class EchoApplication {
     @EventMapping
     public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
         List<Message> test = new ArrayList(); 
-        test.add(new TextMessage("123"));
-        test.add(new ImageMessage("https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg","https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg"));
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         System.out.println("event: " + event);
         String board = "Gossiping";
@@ -81,39 +76,41 @@ public class EchoApplication {
             String[] message = event.getMessage().getText().split("%");
             board = message[1];
         } else if (event.getMessage().getText().startsWith("#")) {
-//            return new TextMessage(getHoroscope(event.getMessage().getText()));
+            test.add(new TextMessage(getHoroscope(event.getMessage().getText())));
         } else if (event.getMessage().getText().startsWith("&")) {
-//            return new TextMessage(getYoutube(event.getMessage().getText()));
+            test.add(new TextMessage(getYoutube(event.getMessage().getText())));
+        } else {
+            return ;
         }
-//        String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
-//        String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
-//
-//        String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
-//                .select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
-//
-//        System.out.println("event: " + prevPage);
-//
-//        prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
-//        Integer lastPage = Integer.valueOf(prevPage);
-//        Integer loadLastPosts = 2;
-//        List<String> lastPostsLink = new ArrayList<String>();
-//        while (loadLastPosts > lastPostsLink.size()) {
-//            String currPage = String.format(gossipIndexPage, lastPage--);
-//            Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".title > a");
-//            System.out.println(links.size());
-//            for (Element link : links) {
-//                if (lastPostsLink.size() > loadLastPosts) {
-//                    break;
-//                }
-//                String[] result = analyzeFeed(link.attr("href"));
-//                if (result != null) {
-//                    lastPostsLink.add(result[0] + "\r\n" + result[1]);
-//                }
-//            }
-//        }
-//        return new TextMessage(String.join("\r\n", lastPostsLink));
+        String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
+        String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
+
+        String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
+                .select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
+
+        System.out.println("event: " + prevPage);
+
+        prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
+        Integer lastPage = Integer.valueOf(prevPage);
+        Integer loadLastPosts = 2;
+        List<String> lastPostsLink = new ArrayList<String>();
+        while (loadLastPosts > lastPostsLink.size()) {
+            String currPage = String.format(gossipIndexPage, lastPage--);
+            Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".title > a");
+            System.out.println(links.size());
+            for (Element link : links) {
+                if (lastPostsLink.size() > loadLastPosts) {
+                    break;
+                }
+                String[] result = analyzeFeed(link.attr("href"));
+                if (result != null) {
+                    lastPostsLink.add(result[0] + "\r\n" + result[1]);
+                }
+            }
+        }
+        test.add(new TextMessage(String.join("\r\n", lastPostsLink)));
         try {
-            BotApiResponse apiResponse = lineMessagingClient
+            lineMessagingClient
                     .replyMessage(new ReplyMessage(event.getReplyToken(), test))
                     .get();
         } catch (InterruptedException | ExecutionException e) {
