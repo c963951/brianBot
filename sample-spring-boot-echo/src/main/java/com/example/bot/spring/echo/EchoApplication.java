@@ -68,20 +68,58 @@ public class EchoApplication {
 
     @EventMapping
     public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
-        List<Message> test = new ArrayList(); 
+        List<Message> reply = new ArrayList<Message>(); 
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         System.out.println("event: " + event);
-        String board = "Gossiping";
         if (event.getMessage().getText().startsWith("%")) {
-            String[] message = event.getMessage().getText().split("%");
-            board = message[1];
+            reply.add(new TextMessage(getPPT(event.getMessage().getText())));
         } else if (event.getMessage().getText().startsWith("#")) {
-            test.add(new TextMessage(getHoroscope(event.getMessage().getText())));
+            reply.add(new TextMessage(getHoroscope(event.getMessage().getText())));
         } else if (event.getMessage().getText().startsWith("&")) {
-            test.add(new TextMessage(getYoutube(event.getMessage().getText())));
+            reply.add(new TextMessage(getYoutube(event.getMessage().getText())));
         } else {
             return ;
         }
+        
+        try {
+            lineMessagingClient
+                    .replyMessage(new ReplyMessage(event.getReplyToken(), reply))
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @EventMapping
+    public void handleDefaultMessageEvent(Event event) {
+        System.out.println("event: " + event);
+    }
+    
+    public static String[] analyzeFeed(String url) {
+
+        // 取得 Jsoup 物件，稍後要做多次 select
+        Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
+                .getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
+        // 2. 文章標題
+        String feedTitle = feed.select("span:contains(標題) + span").text();
+
+        // 3. 按推總數
+        Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
+        if (feedLikeCount < 30) {
+            return null;
+        }
+
+        return new String[] { feedTitle, "https://www.ptt.cc" + url };
+    }
+
+    public static Integer countReply(Elements reply) {
+        return reply.text().split(" ").length;
+    }
+    public static String getPPT(String message) {
+        String board = "Gossiping";
+        String[] sign = message.split("%");
+        board = sign[1];
+        
         String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
         String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
 
@@ -108,40 +146,7 @@ public class EchoApplication {
                 }
             }
         }
-        test.add(new TextMessage(String.join("\r\n", lastPostsLink)));
-        try {
-            lineMessagingClient
-                    .replyMessage(new ReplyMessage(event.getReplyToken(), test))
-                    .get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @EventMapping
-    public void handleDefaultMessageEvent(Event event) {
-        System.out.println("event: " + event);
-    }
-    
-    public String[] analyzeFeed(String url) {
-
-        // 取得 Jsoup 物件，稍後要做多次 select
-        Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
-                .getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
-        // 2. 文章標題
-        String feedTitle = feed.select("span:contains(標題) + span").text();
-
-        // 3. 按推總數
-        Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if (feedLikeCount < 30) {
-            return null;
-        }
-
-        return new String[] { feedTitle, "https://www.ptt.cc" + url };
-    }
-
-    public Integer countReply(Elements reply) {
-        return reply.text().split(" ").length;
+        return String.join("\r\n", lastPostsLink);
     }
 
     public static String getHoroscopeEn(String message) {
