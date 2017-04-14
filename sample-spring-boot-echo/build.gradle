@@ -19,4 +19,5 @@ apply plugin: 'org.springframework.boot'
 dependencies {
     compile project(':line-bot-spring-boot')
     compile 'com.github.abola:crawler:1.1'
+    compile group: 'com.google.apis', name: 'google-api-services-youtube', version: 'v3-rev183-1.22.0'
 }
