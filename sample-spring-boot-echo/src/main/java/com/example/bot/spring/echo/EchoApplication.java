@@ -25,12 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -44,25 +46,31 @@ import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
+import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
 @SpringBootApplication
 @LineMessageHandler
 public class EchoApplication {
+    
+    @Autowired
+    private LineMessagingClient lineMessagingClient;
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(EchoApplication.class, args);
     }
 
     @EventMapping
-    public List<Message> handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
         List<Message> test = new ArrayList(); 
         test.add(new TextMessage("123"));
         test.add(new ImageMessage("https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg","https://i.ytimg.com/vi/MDt1Ed_Qwlo/default.jpg"));
@@ -74,12 +82,8 @@ public class EchoApplication {
             board = message[1];
         } else if (event.getMessage().getText().startsWith("#")) {
 //            return new TextMessage(getHoroscope(event.getMessage().getText()));
-            return test;
         } else if (event.getMessage().getText().startsWith("&")) {
 //            return new TextMessage(getYoutube(event.getMessage().getText()));
-           return test;
-        } else {
-            return null;
         }
         String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
         String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
@@ -108,7 +112,13 @@ public class EchoApplication {
             }
         }
 //        return new TextMessage(String.join("\r\n", lastPostsLink));
-        return test;
+        try {
+            BotApiResponse apiResponse = lineMessagingClient
+                    .replyMessage(new ReplyMessage(event.getReplyToken(), test))
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @EventMapping
