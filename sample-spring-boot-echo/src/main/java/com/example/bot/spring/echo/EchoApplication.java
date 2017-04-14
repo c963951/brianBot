@@ -206,10 +206,7 @@ public class EchoApplication {
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
         if (searchResultList != null) {
-            String linkID = prettyPrint(searchResultList);
-            if (linkID.length() != 0){
-                return "https://www.youtube.com/watch?v="+linkID;
-            }
+            return "https://www.youtube.com/watch?v="+prettyPrint(searchResultList);
         }
         return null;
         
@@ -219,7 +216,7 @@ public class EchoApplication {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
-                return rId.getVideoId().toString();
+                return rId.getVideoId();
             }
         }
         return "";
