@@ -239,6 +239,7 @@ public class EchoApplication {
         search.setType("video");
         search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
         search.setMaxResults(1L);
+        search.setRegionCode("TW");
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
         if (searchResultList != null) {
