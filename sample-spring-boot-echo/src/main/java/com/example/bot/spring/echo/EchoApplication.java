@@ -51,6 +51,7 @@ import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
+import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
@@ -69,20 +70,27 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
+    public void handleTextMessageEvent(MessageEvent<MessageContent> event) throws Exception {
         List<Message> reply = new ArrayList<Message>(); 
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
-        System.out.println("event: " + event);
-        if (event.getMessage().getText().startsWith("%")) {
-            reply.add(new TextMessage(getPPT(event.getMessage().getText())));
-        } else if (event.getMessage().getText().startsWith("#")) {
-            reply.add(new TextMessage(getHoroscope(event.getMessage().getText())));
-        } else if (event.getMessage().getText().startsWith("&")) {
-            reply.add(new TextMessage(getYoutube(event.getMessage().getText())));
-        }else {
+        
+        MessageContent content = event.getMessage();
+        if (content instanceof LocationMessageContent) {
+            LocationMessageContent locationMessage = (LocationMessageContent) event.getMessage();
+            reply.add(new TextMessage(locationMessage.getAddress()));
+        } else if (content instanceof TextMessageContent) {
+            String message = ((TextMessageContent) event.getMessage()).getText();
+            if (message.startsWith("%")) {
+                reply.add(new TextMessage(getPPT(message)));
+            } else if (message.startsWith("#")) {
+                reply.add(new TextMessage(getHoroscope(message)));
+            } else if (message.startsWith("&")) {
+                reply.add(new TextMessage(getYoutube(message)));
+            }
+        } else {
             return ;
         }
-        
+        System.out.println("event: " + event);
         try {
             lineMessagingClient
                     .replyMessage(new ReplyMessage(event.getReplyToken(), reply))
@@ -95,12 +103,6 @@ public class EchoApplication {
     @EventMapping
     public void handleDefaultMessageEvent(Event event) {
         System.out.println("event: " + event);
-    }
-    
-    @EventMapping
-    public TextMessage handleLocationMessageEvent(MessageEvent<LocationMessageContent> event) {
-        LocationMessageContent locationMessage = event.getMessage();
-        return new TextMessage(locationMessage.getAddress());
     }
     
     public static String[] analyzeFeed(String url) {
