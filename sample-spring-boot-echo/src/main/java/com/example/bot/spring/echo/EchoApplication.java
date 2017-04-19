@@ -50,6 +50,7 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
@@ -78,7 +79,7 @@ public class EchoApplication {
             reply.add(new TextMessage(getHoroscope(event.getMessage().getText())));
         } else if (event.getMessage().getText().startsWith("&")) {
             reply.add(new TextMessage(getYoutube(event.getMessage().getText())));
-        } else {
+        }else {
             return ;
         }
         
@@ -94,6 +95,12 @@ public class EchoApplication {
     @EventMapping
     public void handleDefaultMessageEvent(Event event) {
         System.out.println("event: " + event);
+    }
+    
+    @EventMapping
+    public TextMessage handleLocationMessageEvent(MessageEvent<LocationMessageContent> event) {
+        LocationMessageContent locationMessage = event.getMessage();
+        return new TextMessage(locationMessage.getAddress());
     }
     
     public static String[] analyzeFeed(String url) {
