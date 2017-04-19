@@ -86,6 +86,8 @@ public class EchoApplication {
                 reply.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
                 reply.add(new TextMessage(getYoutube(message)));
+            } else {
+                return ;
             }
         } else {
             return ;
