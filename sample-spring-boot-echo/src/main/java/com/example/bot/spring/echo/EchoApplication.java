@@ -60,10 +60,15 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
+import com.linecorp.bot.model.message.ImagemapMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.imagemap.ImagemapArea;
+import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
+import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
+import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -243,7 +248,7 @@ public class EchoApplication {
         return day + "\r\n" + article;
     }
     
-    public static TemplateMessage getYoutube(String message) throws Exception {
+    public static ImagemapMessage getYoutube(String message) throws Exception {
         
         String[] result = message.split("&");
         String queryTerm = result[1];
@@ -273,7 +278,7 @@ public class EchoApplication {
         
     }
     
-    private static TemplateMessage prettyPrint(List<SearchResult> listSearchResults) {
+    private static ImagemapMessage prettyPrint(List<SearchResult> listSearchResults) {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
@@ -288,7 +293,20 @@ public class EchoApplication {
                                 new MessageAction("Say message",
                                                   "Rice=米")
                         ));
-                return (new TemplateMessage("Button alt text", buttonsTemplate));
+                
+                
+                return (new ImagemapMessage("https://www.youtube.com/watch?v="+rId.getVideoId(),
+                        singleVideo.getSnippet().getTitle(),
+                        new ImagemapBaseSize(1040, 1040),
+                        Arrays.asList(
+                                new URIImagemapAction(
+                                        thumbnail.getUrl(),
+                                        new ImagemapArea(
+                                                0, 0, 520, 520
+                                        )
+                                )
+                        )
+                ));
             }
         }
         return null;
