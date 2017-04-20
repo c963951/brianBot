@@ -53,6 +53,8 @@ import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
+import com.linecorp.bot.model.event.source.RoomSource;
+import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
@@ -89,11 +91,18 @@ public class EchoApplication {
                 Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
                 Messages.add(new TextMessage(getYoutube(message)));
-            }
-            if (event.getSource() instanceof GroupSource && message.equals("LeaveGroup")) {
-                Messages.add(new TextMessage("大家再見~家再見~再見~見"));
-                reply(event.getReplyToken(),Messages);
-                lineMessagingClient.leaveGroup(((GroupSource) event.getSource()).getGroupId()).get();
+            } else if (message.equals("LeaveGroup")) {
+                Source source = event.getSource();
+                if (source instanceof GroupSource) {
+                    Messages.add(new TextMessage("大家再見~家再見~再見~見"));
+                    reply(event.getReplyToken(),Messages);
+                    lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
+                } else if (source instanceof RoomSource) {
+                    Messages.add(new TextMessage("你就不要想起我"));
+                    reply(event.getReplyToken(),Messages);
+                    lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
+                }
+                
                 return;
             }
         }
