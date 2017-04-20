@@ -284,14 +284,14 @@ public class EchoApplication {
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
                 Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-                return (new ImagemapMessage(thumbnail.getUrl()+"/200",
+                return (new ImagemapMessage(thumbnail.getUrl(),
                         singleVideo.getSnippet().getTitle(),
                         new ImagemapBaseSize(120, 90),
                         Arrays.asList(
                                 new URIImagemapAction(
                                         "https://www.youtube.com/watch?v="+rId.getVideoId(),
                                         new ImagemapArea(
-                                                0, 0, 128, 128
+                                                0, 0, 50, 50
                                         )
                                 ),
                                 new MessageImagemapAction(
