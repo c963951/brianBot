@@ -56,6 +56,7 @@ import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -95,6 +96,7 @@ public class EchoApplication {
                 Source source = event.getSource();
                 if (source instanceof GroupSource) {
                     Messages.add(new TextMessage("大家再見~家再見~再見~見"));
+                    Messages.add(new StickerMessage("2", "524"));
                     reply(event.getReplyToken(),Messages);
                     lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
                 } else if (source instanceof RoomSource) {
@@ -104,6 +106,11 @@ public class EchoApplication {
                 }
                 
                 return;
+            } else if (message.startsWith("@@")){
+                String[] sign = message.split("@@");
+                String pkg = sign[1];
+                String skid = sign[2];
+                Messages.add(new StickerMessage(pkg, skid));
             }
         }
         if (Messages.size() == 0){
@@ -120,26 +127,10 @@ public class EchoApplication {
         }
     }
     
-    public static String[] analyzeFeed(String url) {
-
-        // 取得 Jsoup 物件，稍後要做多次 select
-        Document feed = CrawlerPack.start().addCookie("over18", "1") // 八卦版進入需要設定cookie
-                .getFromHtml("https://www.ptt.cc" + url); // 遠端資料格式為 HTML
-        // 2. 文章標題
-        String feedTitle = feed.select("span:contains(標題) + span").text();
-
-        // 3. 按推總數
-        Integer feedLikeCount = countReply(feed.select(".push-tag:matchesOwn(推) + .push-userid"));
-        if (feedLikeCount < 30) {
-            return null;
-        }
-
-        return new String[] { feedTitle, "https://www.ptt.cc" + url };
-    }
-
     public static Integer countReply(Elements reply) {
         return reply.text().split(" ").length;
     }
+    
     public static String getPPT(String message) {
         String board = "Gossiping";
         String[] sign = message.split("%");
