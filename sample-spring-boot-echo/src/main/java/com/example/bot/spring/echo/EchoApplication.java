@@ -78,7 +78,7 @@ import lombok.NonNull;
 @SpringBootApplication
 @LineMessageHandler
 public class EchoApplication {
-
+    
     @Autowired
     private LineMessagingClient lineMessagingClient;
 
@@ -89,9 +89,9 @@ public class EchoApplication {
     @EventMapping
     public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
         System.out.println("event: " + event);
-        List<Message> Messages = new ArrayList<Message>();
+        List<Message> Messages = new ArrayList<Message>(); 
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
-
+        
         MessageContent content = event.getMessage();
         if (content instanceof LocationMessageContent) {
             LocationMessageContent locationMessage = (LocationMessageContent) event.getMessage();
@@ -109,28 +109,28 @@ public class EchoApplication {
                 if (source instanceof GroupSource) {
                     Messages.add(new TextMessage("大家再見~家再見~再見~見"));
                     Messages.add(new StickerMessage("2", "524"));
-                    reply(event.getReplyToken(), Messages);
+                    reply(event.getReplyToken(),Messages);
                     lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
                 } else if (source instanceof RoomSource) {
                     Messages.add(new TextMessage("你就不要想起我"));
-                    reply(event.getReplyToken(), Messages);
+                    reply(event.getReplyToken(),Messages);
                     lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
                 }
-
+                
                 return;
-            } else if (message.startsWith("@@")) {
+            } else if (message.startsWith("@@")){
                 String[] sign = message.split("@@");
                 String pkg = sign[1];
                 String skid = sign[2];
                 Messages.add(new StickerMessage(pkg, skid));
             }
         }
-        if (Messages.size() == 0) {
+        if (Messages.size() == 0){
             return;
         }
-        reply(event.getReplyToken(), Messages);
+        reply(event.getReplyToken(),Messages);
     }
-
+    
     private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
         try {
             lineMessagingClient.replyMessage(new ReplyMessage(replyToken, messages)).get();
@@ -138,16 +138,16 @@ public class EchoApplication {
             throw new RuntimeException(e);
         }
     }
-
+    
     public static Integer countReply(Elements reply) {
         return reply.text().split(" ").length;
     }
-
+    
     public static String getPPT(String message) {
         String board = "Gossiping";
         String[] sign = message.split("%");
         board = sign[1];
-
+        
         String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
         String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
 
@@ -184,7 +184,7 @@ public class EchoApplication {
                 }
                 Elements titles = link.select(".title > a");
                 for (Element title : titles) {
-                    lastPostsLink.add(title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
+                    lastPostsLink.add( title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
                 }
             }
         }
@@ -247,20 +247,19 @@ public class EchoApplication {
         String article = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac .article").text();
         return day + "\r\n" + article;
     }
-
+    
     public static ImagemapMessage getYoutube(String message) throws Exception {
-
+        
         String[] result = message.split("&");
         String queryTerm = result[1];
-
-        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(),
-                new HttpRequestInitializer() {
-                    public void initialize(HttpRequest request) throws IOException {
-                    }
-                }).setApplicationName("youtube-cmdline-search-sample").build();
-
+        
+        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer()  {
+            public void initialize(HttpRequest request) throws IOException {
+            }
+        }).setApplicationName("youtube-cmdline-search-sample").build();
+        
         YouTube.Search.List search = youtube.search().list("id,snippet");
-
+        
         String apiKey = "AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk";
         search.setKey(apiKey);
         search.setQ(queryTerm);
@@ -270,22 +269,38 @@ public class EchoApplication {
         search.setRegionCode("TW");
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
-
+        
+        
         if (searchResultList != null) {
             return prettyPrint(searchResultList);
         }
         return null;
-
+        
     }
-
+    
     private static ImagemapMessage prettyPrint(List<SearchResult> listSearchResults) {
-        for (SearchResult singleVideo : listSearchResults) {
+        for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
                 Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
                 return (new ImagemapMessage(thumbnail.getUrl(),
-                        singleVideo.getSnippet().getTitle(), new ImagemapBaseSize(128, 128),
-                        Arrays.asList(new URIImagemapAction("https://www.youtube.com/watch?v=" + rId.getVideoId(), new ImagemapArea(0, 0, 128, 128)))));
+                        singleVideo.getSnippet().getTitle(),
+                        new ImagemapBaseSize(120, 90),
+                        Arrays.asList(
+                                new URIImagemapAction(
+                                        "https://www.youtube.com/watch?v="+rId.getVideoId(),
+                                        new ImagemapArea(
+                                                0, 0, 128, 128
+                                        )
+                                ),
+                                new MessageImagemapAction(
+                                        "URANAI!",
+                                        new ImagemapArea(
+                                                100, 100, 50, 50
+                                        )
+                                )
+                        )
+                ));
             }
         }
         return null;
