@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -31,13 +30,11 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.json.JSONObject;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.github.abola.crawler.CrawlerPack;
 import com.google.api.client.http.HttpRequest;
@@ -48,12 +45,8 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
-import com.linecorp.bot.model.action.MessageAction;
-import com.linecorp.bot.model.action.PostbackAction;
-import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -61,16 +54,9 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
-import com.linecorp.bot.model.message.ImagemapMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
-import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.model.message.imagemap.ImagemapArea;
-import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
-import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
-import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
-import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -104,7 +90,7 @@ public class EchoApplication {
             } else if (message.startsWith("#")) {
                 Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
-                Messages.add(getYoutube(message));
+                Messages.add(new TextMessage(getYoutube(message)));
             } else if (message.equals("LeaveGroup")) {
                 Source source = event.getSource();
                 if (source instanceof GroupSource) {
@@ -249,7 +235,7 @@ public class EchoApplication {
         return day + "\r\n" + article;
     }
     
-    public static ImagemapMessage getYoutube(String message) throws Exception {
+    public static String getYoutube(String message) throws Exception {
         
         String[] result = message.split("&");
         String queryTerm = result[1];
@@ -271,39 +257,48 @@ public class EchoApplication {
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
         
-        
         if (searchResultList != null) {
-            return prettyPrint(searchResultList);
+            return "https://www.youtube.com/watch?v="+prettyPrint(searchResultList);
         }
         return null;
         
     }
     
-    private static ImagemapMessage prettyPrint(List<SearchResult> listSearchResults) {
+    private static String prettyPrint(List<SearchResult> listSearchResults) {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
-                Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-                return (new ImagemapMessage(thumbnail.getUrl(),
-                        singleVideo.getSnippet().getTitle(),
-                        new ImagemapBaseSize(120, 90),
-                        Arrays.asList(
-                                new URIImagemapAction(
-                                        "https://www.youtube.com/watch?v="+rId.getVideoId(),
-                                        new ImagemapArea(
-                                                0, 0, 50, 50
-                                        )
-                                ),
-                                new MessageImagemapAction(
-                                        "URANAI!",
-                                        new ImagemapArea(
-                                                100, 100, 50, 50
-                                        )
-                                )
-                        )
-                ));
+                return rId.getVideoId();
             }
         }
-        return null;
+        return "";
     }
+    
+//    private static ImagemapMessage prettyPrint1(List<SearchResult> listSearchResults) {
+//        for(SearchResult singleVideo : listSearchResults){
+//            ResourceId rId = singleVideo.getId();
+//            if (rId.getKind().equals("youtube#video")) {
+//                Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
+//                return (new ImagemapMessage(thumbnail.getUrl(),
+//                        singleVideo.getSnippet().getTitle(),
+//                        new ImagemapBaseSize(1024, 1024),
+//                        Arrays.asList(
+//                                new URIImagemapAction(
+//                                        "https://www.youtube.com/watch?v="+rId.getVideoId(),
+//                                        new ImagemapArea(
+//                                                0, 0, 50, 50
+//                                        )
+//                                ),
+//                                new MessageImagemapAction(
+//                                        "URANAI!",
+//                                        new ImagemapArea(
+//                                                100, 0, 50, 50
+//                                        )
+//                                )
+//                        )
+//                ));
+//            }
+//        }
+//        return null;
+//      }
 }
