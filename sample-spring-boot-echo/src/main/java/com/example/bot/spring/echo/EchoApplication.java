@@ -105,11 +105,6 @@ public class EchoApplication {
                 }
                 
                 return;
-            } else if (message.startsWith("@@")){
-                String[] sign = message.split("@@");
-                String pkg = sign[1];
-                String skid = sign[2];
-                Messages.add(new StickerMessage(pkg, skid));
             }
         }
         if (Messages.size() == 0){
