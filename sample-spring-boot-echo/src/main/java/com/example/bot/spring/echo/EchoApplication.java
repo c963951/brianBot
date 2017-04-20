@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -46,8 +47,12 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.action.MessageAction;
+import com.linecorp.bot.model.action.PostbackAction;
+import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -57,7 +62,9 @@ import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
+import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -91,7 +98,7 @@ public class EchoApplication {
             } else if (message.startsWith("#")) {
                 Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
-                Messages.add(new TextMessage(getYoutube(message)));
+                Messages.add(getYoutube(message));
             } else if (message.equals("LeaveGroup")) {
                 Source source = event.getSource();
                 if (source instanceof GroupSource) {
@@ -236,7 +243,7 @@ public class EchoApplication {
         return day + "\r\n" + article;
     }
     
-    public static String getYoutube(String message) throws Exception {
+    public static TemplateMessage getYoutube(String message) throws Exception {
         
         String[] result = message.split("&");
         String queryTerm = result[1];
@@ -257,20 +264,33 @@ public class EchoApplication {
         search.setRegionCode("TW");
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
+        
+        
         if (searchResultList != null) {
-            return "https://www.youtube.com/watch?v="+prettyPrint(searchResultList);
+            return prettyPrint(searchResultList);
         }
         return null;
         
     }
     
-    private static String prettyPrint(List<SearchResult> listSearchResults) {
+    private static TemplateMessage prettyPrint(List<SearchResult> listSearchResults) {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
-                return rId.getVideoId();
+                Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
+                ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
+                        thumbnail.getUrl(),
+                        "My button sample",
+                        "Hello, my button",
+                        Arrays.asList(
+                                new URIAction(singleVideo.getSnippet().getTitle(),
+                                        "https://www.youtube.com/watch?v="+rId.getVideoId()),
+                                new MessageAction("Say message",
+                                                  "Rice=米")
+                        ));
+                return (new TemplateMessage("Button alt text", buttonsTemplate));
             }
         }
-        return "";
+        return null;
     }
 }
