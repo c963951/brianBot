@@ -37,6 +37,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.github.abola.crawler.CrawlerPack;
 import com.google.api.client.http.HttpRequest;
@@ -278,12 +279,18 @@ public class EchoApplication {
         
     }
     
+    private static String createUri(String path) {
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                                          .path(path).build()
+                                          .toUriString();
+    }
+    
     private static ImagemapMessage prettyPrint(List<SearchResult> listSearchResults) {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
                 Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-                return (new ImagemapMessage(thumbnail.getUrl(),
+                return (new ImagemapMessage(createUri(thumbnail.getUrl()),
                         singleVideo.getSnippet().getTitle(),
                         new ImagemapBaseSize(120, 90),
                         Arrays.asList(
