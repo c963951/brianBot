@@ -279,18 +279,12 @@ public class EchoApplication {
         
     }
     
-    private static String createUri(String path) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                          .path(path).build()
-                                          .toUriString();
-    }
-    
     private static ImagemapMessage prettyPrint(List<SearchResult> listSearchResults) {
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
             if (rId.getKind().equals("youtube#video")) {
                 Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-                return (new ImagemapMessage(createUri(thumbnail.getUrl()),
+                return (new ImagemapMessage(thumbnail.getUrl()+"/200",
                         singleVideo.getSnippet().getTitle(),
                         new ImagemapBaseSize(120, 90),
                         Arrays.asList(
