@@ -92,12 +92,11 @@ public class EchoApplication {
             }
             if (event.getSource() instanceof GroupSource && message.equals("LeaveGroup")) {
                 Messages.add(new TextMessage("大家再見~家再見~再見~見"));
-                lineMessagingClient.leaveGroup(((GroupSource) event.getSource()).getGroupId()).get();
                 reply(event.getReplyToken(),Messages);
+                lineMessagingClient.leaveGroup(((GroupSource) event.getSource()).getGroupId()).get();
                 return;
             }
         }
-        System.out.println("event: " + event);
         if (Messages.size() == 0){
             return;
         }
