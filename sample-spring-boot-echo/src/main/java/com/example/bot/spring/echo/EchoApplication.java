@@ -48,15 +48,17 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
-import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+
+import lombok.NonNull;
 
 @SpringBootApplication
 @LineMessageHandler
@@ -70,41 +72,44 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public void handleTextMessageEvent(MessageEvent<MessageContent> event) throws Exception {
-        List<Message> reply = new ArrayList<Message>(); 
+    public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
+        System.out.println("event: " + event);
+        List<Message> Messages = new ArrayList<Message>(); 
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         
         MessageContent content = event.getMessage();
         if (content instanceof LocationMessageContent) {
             LocationMessageContent locationMessage = (LocationMessageContent) event.getMessage();
-            reply.add(new TextMessage(locationMessage.getAddress()));
+            Messages.add(new TextMessage(locationMessage.getAddress()));
         } else if (content instanceof TextMessageContent) {
             String message = ((TextMessageContent) event.getMessage()).getText();
             if (message.startsWith("%")) {
-                reply.add(new TextMessage(getPPT(message)));
+                Messages.add(new TextMessage(getPPT(message)));
             } else if (message.startsWith("#")) {
-                reply.add(new TextMessage(getHoroscope(message)));
+                Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
-                reply.add(new TextMessage(getYoutube(message)));
-            } else {
-                return ;
+                Messages.add(new TextMessage(getYoutube(message)));
             }
-        } else {
-            return ;
+            if (event.getSource() instanceof GroupSource && message.equals("LeaveGroup")) {
+                Messages.add(new TextMessage("大家再見~家再見~再見~見"));
+                lineMessagingClient.leaveGroup(((GroupSource) event.getSource()).getGroupId()).get();
+                reply(event.getReplyToken(),Messages);
+                return;
+            }
         }
         System.out.println("event: " + event);
+        if (Messages.size() == 0){
+            return;
+        }
+        reply(event.getReplyToken(),Messages);
+    }
+    
+    private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
         try {
-            lineMessagingClient
-                    .replyMessage(new ReplyMessage(event.getReplyToken(), reply))
-                    .get();
+            lineMessagingClient.replyMessage(new ReplyMessage(replyToken, messages)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @EventMapping
-    public void handleDefaultMessageEvent(Event event) {
-        System.out.println("event: " + event);
     }
     
     public static String[] analyzeFeed(String url) {
