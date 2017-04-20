@@ -297,12 +297,12 @@ public class EchoApplication {
                 
                 return (new ImagemapMessage("https://www.youtube.com/watch?v="+rId.getVideoId(),
                         singleVideo.getSnippet().getTitle(),
-                        new ImagemapBaseSize(1040, 1040),
+                        new ImagemapBaseSize(128, 128),
                         Arrays.asList(
                                 new URIImagemapAction(
                                         thumbnail.getUrl(),
                                         new ImagemapArea(
-                                                0, 0, 520, 520
+                                                0, 0, 128, 128
                                         )
                                 )
                         )
