@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -35,6 +36,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.github.abola.crawler.CrawlerPack;
 import com.google.api.client.http.HttpRequest;
@@ -54,9 +56,14 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
+import com.linecorp.bot.model.message.ImagemapMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.imagemap.ImagemapArea;
+import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
+import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
+import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -105,12 +112,54 @@ public class EchoApplication {
                 }
                 
                 return;
+            } else if (message.startsWith("t1")) {
+            	Messages.add(test());
             }
         }
         if (Messages.size() == 0){
             return;
         }
         reply(event.getReplyToken(),Messages);
+    }
+    
+    public ImagemapMessage test() {
+    	return new ImagemapMessage(
+                createUri("/static/rich"),
+                "This is alt text",
+                new ImagemapBaseSize(1040, 1040),
+                Arrays.asList(
+                        new URIImagemapAction(
+                                "https://store.line.me/family/manga/en",
+                                new ImagemapArea(
+                                        0, 0, 520, 520
+                                )
+                        ),
+                        new URIImagemapAction(
+                                "https://store.line.me/family/music/en",
+                                new ImagemapArea(
+                                        520, 0, 520, 520
+                                )
+                        ),
+                        new URIImagemapAction(
+                                "https://store.line.me/family/play/en",
+                                new ImagemapArea(
+                                        0, 520, 520, 520
+                                )
+                        ),
+                        new MessageImagemapAction(
+                                "URANAI!",
+                                new ImagemapArea(
+                                        520, 520, 520, 520
+                                )
+                        )
+                )
+        );
+    }
+    
+    private static String createUri(String path) {
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                                          .path(path).build()
+                                          .toUriString();
     }
     
     private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
