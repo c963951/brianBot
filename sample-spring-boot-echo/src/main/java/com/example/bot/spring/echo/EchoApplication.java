@@ -124,7 +124,7 @@ public class EchoApplication {
     
     public ImagemapMessage test() {
     	return new ImagemapMessage(
-                createUri("/static/rich"),
+                "https://scdn.line-apps.com/n/_5/partner-center/img/og-msgapi.png",
                 "This is alt text",
                 new ImagemapBaseSize(1040, 1040),
                 Arrays.asList(
