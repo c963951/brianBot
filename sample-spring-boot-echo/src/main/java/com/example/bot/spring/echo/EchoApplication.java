@@ -269,8 +269,8 @@ public class EchoApplication {
             Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
             if (rId.getKind().equals("youtube#video")) {
                 messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
-                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r"
-                        + "nhttps://www.youtube.com/watch?v=" + rId.getVideoId()));
+                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
+                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
             }
         }
         return messages;
