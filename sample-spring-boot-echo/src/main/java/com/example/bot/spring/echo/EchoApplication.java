@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -36,7 +35,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.github.abola.crawler.CrawlerPack;
 import com.google.api.client.http.HttpRequest;
@@ -47,6 +45,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -56,14 +55,10 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
-import com.linecorp.bot.model.message.ImagemapMessage;
+import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.model.message.imagemap.ImagemapArea;
-import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
-import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
-import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -97,7 +92,7 @@ public class EchoApplication {
             } else if (message.startsWith("#")) {
                 Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
-                Messages.add(new TextMessage(getYoutube(message)));
+                Messages.addAll(getYoutube(message));
             } else if (message.equals("LeaveGroup")) {
                 Source source = event.getSource();
                 if (source instanceof GroupSource) {
@@ -112,54 +107,12 @@ public class EchoApplication {
                 }
                 
                 return;
-            } else if (message.startsWith("t1")) {
-            	Messages.add(test());
             }
         }
         if (Messages.size() == 0){
             return;
         }
         reply(event.getReplyToken(),Messages);
-    }
-    
-    public ImagemapMessage test() {
-    	return new ImagemapMessage(
-                "https://scdn.line-apps.com/n/_5/partner-center/img/og-msgapi.png",
-                "This is alt text",
-                new ImagemapBaseSize(1040, 1040),
-                Arrays.asList(
-                        new URIImagemapAction(
-                                "https://store.line.me/family/manga/en",
-                                new ImagemapArea(
-                                        0, 0, 520, 520
-                                )
-                        ),
-                        new URIImagemapAction(
-                                "https://store.line.me/family/music/en",
-                                new ImagemapArea(
-                                        520, 0, 520, 520
-                                )
-                        ),
-                        new URIImagemapAction(
-                                "https://store.line.me/family/play/en",
-                                new ImagemapArea(
-                                        0, 520, 520, 520
-                                )
-                        ),
-                        new MessageImagemapAction(
-                                "URANAI!",
-                                new ImagemapArea(
-                                        520, 520, 520, 520
-                                )
-                        )
-                )
-        );
-    }
-    
-    private static String createUri(String path) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                          .path(path).build()
-                                          .toUriString();
     }
     
     private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
@@ -279,7 +232,7 @@ public class EchoApplication {
         return day + "\r\n" + article;
     }
     
-    public static String getYoutube(String message) throws Exception {
+    public static List<Message> getYoutube(String message) throws Exception {
         
         String[] result = message.split("&");
         String queryTerm = result[1];
@@ -302,47 +255,25 @@ public class EchoApplication {
         List<SearchResult> searchResultList = searchResponse.getItems();
         
         if (searchResultList != null) {
-            return "https://www.youtube.com/watch?v="+prettyPrint(searchResultList);
+            
+            return prettyPrint(searchResultList);
         }
         return null;
         
     }
     
-    private static String prettyPrint(List<SearchResult> listSearchResults) {
+    private static List<Message> prettyPrint(List<SearchResult> listSearchResults) {
+        List<Message> messages = new ArrayList<Message>(); 
         for(SearchResult singleVideo : listSearchResults){
             ResourceId rId = singleVideo.getId();
+            Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
             if (rId.getKind().equals("youtube#video")) {
-                return rId.getVideoId();
+                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
+                messages.add(new TextMessage("https://www.youtube.com/watch?v="+rId.getVideoId()));
             }
         }
-        return "";
+        return messages;
     }
     
-//    private static ImagemapMessage prettyPrint1(List<SearchResult> listSearchResults) {
-//        for(SearchResult singleVideo : listSearchResults){
-//            ResourceId rId = singleVideo.getId();
-//            if (rId.getKind().equals("youtube#video")) {
-//                Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-//                return (new ImagemapMessage(thumbnail.getUrl(),
-//                        singleVideo.getSnippet().getTitle(),
-//                        new ImagemapBaseSize(1024, 1024),
-//                        Arrays.asList(
-//                                new URIImagemapAction(
-//                                        "https://www.youtube.com/watch?v="+rId.getVideoId(),
-//                                        new ImagemapArea(
-//                                                0, 0, 50, 50
-//                                        )
-//                                ),
-//                                new MessageImagemapAction(
-//                                        "URANAI!",
-//                                        new ImagemapArea(
-//                                                100, 0, 50, 50
-//                                        )
-//                                )
-//                        )
-//                ));
-//            }
-//        }
-//        return null;
-//      }
+
 }
