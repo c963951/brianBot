@@ -242,8 +242,8 @@ public class EchoApplication {
         Document doc = CrawlerPack.start().getFromJson(detailUrl);
         result.append("地區：" + region + "\r\n");
         result.append("敘述：" + doc.select("desc").get(0).text() + "\r\n");
-        result.append("溫度：" + doc.select("temperature").get(0).text() + "\r\n");
-        result.append("體感溫度：" + doc.select("felt_air_temp").get(0).text() + "\r\n");
+        result.append("溫度：" + doc.select("temperature").get(0).text() + "°C　\r\n");
+        result.append("體感溫度：" + doc.select("felt_air_temp").get(0).text() + "°C　\r\n");
         result.append("濕度：" + doc.select("humidity").get(0).text() + "% \r\n");
 
         return new TextMessage(result.toString());
