@@ -137,8 +137,11 @@ public class EchoApplication {
 
     private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)
             throws Exception {
-        LineMessagingServiceBuilder.create(channelToken).build().pushMessage(new PushMessage(pushId, messages))
-                .execute();
+        try {
+            lineMessagingClient.pushMessage(new PushMessage(pushId, messages)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Integer countReply(Elements reply) {
