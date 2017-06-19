@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.json.JSONObject;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
 import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.client.LineMessagingServiceBuilder;
+import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
@@ -78,8 +81,16 @@ public class EchoApplication {
     @EventMapping
     public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
         System.out.println("event: " + event);
+        Source source = event.getSource();
+        String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
         List<Message> Messages = new ArrayList<Message>();
         CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
+        String pushId = source.getUserId();
+        if (source instanceof GroupSource) {
+            pushId = ((GroupSource) source).getGroupId();
+        } else if (source instanceof RoomSource) {
+            pushId = ((RoomSource) source).getRoomId();
+        }
 
         MessageContent content = event.getMessage();
         if (content instanceof LocationMessageContent) {
@@ -93,8 +104,9 @@ public class EchoApplication {
                 Messages.add(new TextMessage(getHoroscope(message)));
             } else if (message.startsWith("&")) {
                 Messages.addAll(getYoutube(message));
+            } else if (message.startsWith("$")) {
+                Messages.add(getWeather(message));
             } else if (message.equals("LeaveGroup")) {
-                Source source = event.getSource();
                 if (source instanceof GroupSource) {
                     Messages.add(new TextMessage("大家再見~家再見~再見~見"));
                     Messages.add(new StickerMessage("2", "524"));
@@ -112,7 +124,7 @@ public class EchoApplication {
         if (Messages.size() == 0) {
             return;
         }
-        reply(event.getReplyToken(), Messages);
+        push(channelToken, pushId, Messages);
     }
 
     private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
@@ -121,6 +133,12 @@ public class EchoApplication {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)
+            throws Exception {
+        LineMessagingServiceBuilder.create(channelToken).build().pushMessage(new PushMessage(pushId, messages))
+                .execute();
     }
 
     public static Integer countReply(Elements reply) {
@@ -206,6 +224,27 @@ public class EchoApplication {
             return "Problem retrieving horoscope";
         }
 
+    }
+
+    public static TextMessage getWeather(String message) {
+        String[] cut = message.split("\\$");
+        String region = cut[1];
+        String regionUrl = "https://works.ioa.tw/weather/api/all.json";
+        HashMap<String, String> allMap = new HashMap<String, String>();
+        Elements a = CrawlerPack.start().getFromJson(regionUrl).getElementsByTag("towns");
+        for (Element b : a) {
+            allMap.put(b.getElementsByTag("name").text(), b.getElementsByTag("id").text());
+        }
+        StringBuffer result = new StringBuffer();
+        String detailUrl = "https://works.ioa.tw/weather/api/weathers/" + allMap.get(region) + ".json";
+        Document doc = CrawlerPack.start().getFromJson(detailUrl);
+        result.append("地區:" + region + "\r\n");
+        result.append("敘述:" + doc.select("desc").get(0).text() + "\r\n");
+        result.append("溫度" + doc.select("temperature").get(0).text() + "\r\n");
+        result.append("體感溫度" + doc.select("felt_air_temp").get(0).text() + "\r\n");
+        result.append("濕度" + doc.select("humidity").get(0).text() + "% \r\n");
+
+        return new TextMessage(result.toString());
     }
 
     public static String getHoroscope(String message) {
