@@ -1,55 +1,19 @@
-/*
- * Copyright 2016 LINE Corporation
- *
- * LINE Corporation licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
-
 package com.example.bot.spring.echo;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.impl.SimpleLog;
-import org.json.JSONObject;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.github.abola.crawler.CrawlerPack;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ResourceId;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
+import com.example.bot.spring.service.HoroscopeService;
+import com.example.bot.spring.service.PttService;
+import com.example.bot.spring.service.WeatherService;
+import com.example.bot.spring.service.YoutubeService;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
-import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -57,9 +21,7 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
-import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
-import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -70,6 +32,8 @@ import lombok.NonNull;
 @LineMessageHandler
 public class EchoApplication {
 
+    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
+
     @Autowired
     private LineMessagingClient lineMessagingClient;
 
@@ -78,12 +42,24 @@ public class EchoApplication {
     }
 
     @EventMapping
+    public void handleLocationMessageEvent(MessageEvent<LocationMessageContent> event) throws Exception {
+        Source source = event.getSource();
+        List<Message> Messages = new ArrayList<Message>();
+        String pushId = source.getUserId();
+        if (source instanceof GroupSource) {
+            pushId = ((GroupSource) source).getGroupId();
+        } else if (source instanceof RoomSource) {
+            pushId = ((RoomSource) source).getRoomId();
+        }
+        Messages.add(new TextMessage(event.getMessage().getAddress()));
+        push(channelToken, pushId, Messages);
+    }
+
+    @EventMapping
     public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
         System.out.println("event: " + event);
         Source source = event.getSource();
-        String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
         List<Message> Messages = new ArrayList<Message>();
-        CrawlerPack.setLoggerLevel(SimpleLog.LOG_LEVEL_OFF);
         String pushId = source.getUserId();
         if (source instanceof GroupSource) {
             pushId = ((GroupSource) source).getGroupId();
@@ -91,47 +67,48 @@ public class EchoApplication {
             pushId = ((RoomSource) source).getRoomId();
         }
 
-        MessageContent content = event.getMessage();
-        if (content instanceof LocationMessageContent) {
-            LocationMessageContent locationMessage = (LocationMessageContent) event.getMessage();
-            Messages.add(new TextMessage(locationMessage.getAddress()));
-        } else if (content instanceof TextMessageContent) {
-            String message = ((TextMessageContent) event.getMessage()).getText();
-            if (message.startsWith("%")) {
-                Messages.add(new TextMessage(getPPT(message)));
-            } else if (message.startsWith("#")) {
-                Messages.add(new TextMessage(getHoroscope(message)));
-            } else if (message.startsWith("&")) {
-                Messages.addAll(getYoutube(message));
-            } else if (message.startsWith("$")) {
-                Messages.add(getWeather(message));
-            } else if (message.equals("LeaveGroup")) {
-                if (source instanceof GroupSource) {
-                    Messages.add(new TextMessage("大家再見~家再見~再見~見"));
-                    Messages.add(new StickerMessage("2", "524"));
-                    reply(event.getReplyToken(), Messages);
-                    lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
-                } else if (source instanceof RoomSource) {
-                    Messages.add(new TextMessage("你就不要想起我"));
-                    reply(event.getReplyToken(), Messages);
-                    lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
-                }
-
-                return;
+        String message = ((TextMessageContent) event.getMessage()).getText();
+        String keyworad = message.substring(1);
+        if (message.startsWith("%")) {
+            Messages.add(PTT(keyworad));
+        } else if (message.startsWith("#")) {
+            Messages.add(Horoscope(keyworad));
+        } else if (message.startsWith("&")) {
+            Messages.addAll(getYoutube(keyworad));
+        } else if (message.startsWith("$")) {
+            Messages.add(Weather(keyworad));
+        } else if (message.equals("Botbye")) {
+            if (source instanceof GroupSource) {
+                lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
+            } else if (source instanceof RoomSource) {
+                lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
             }
+            return;
         }
-        if (Messages.size() == 0) {
+        if (Messages.isEmpty()) {
             return;
         }
         push(channelToken, pushId, Messages);
     }
 
-    private void reply(@NonNull String replyToken, @NonNull List<Message> messages) {
-        try {
-            lineMessagingClient.replyMessage(new ReplyMessage(replyToken, messages)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+    public static TextMessage PTT(String message) {
+        String result = PttService.getInstance().getPttMessage(message);
+        return new TextMessage(result);
+    }
+
+    public static TextMessage Weather(String message) {
+        String result = WeatherService.getInstance().getWeather(message);
+        return new TextMessage(result);
+    }
+
+    public static TextMessage Horoscope(String message) {
+        String result = HoroscopeService.getInstance().getHoroscope(message);
+        return new TextMessage(result);
+    }
+
+    public static List<Message> getYoutube(String message) throws Exception {
+        List<Message> result = YoutubeService.getInstance().getYoutube(message);
+        return result;
     }
 
     private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)
@@ -141,180 +118,6 @@ public class EchoApplication {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Integer countReply(Elements reply) {
-        return reply.text().split(" ").length;
-    }
-
-    public static String getPPT(String message) {
-        String board = "Gossiping";
-        String[] sign = message.split("%");
-        board = sign[1];
-
-        String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
-        String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
-
-        String prevPage = CrawlerPack.start().addCookie("over18", "1").getFromHtml(gossipMainPage)
-                .select(".action-bar a:matchesOwn(上頁)").get(0).attr("href");
-
-        System.out.println("event: " + prevPage);
-
-        prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
-        Integer lastPage = Integer.valueOf(prevPage);
-        Integer loadLastPosts = 2;
-        List<String> lastPostsLink = new ArrayList<String>();
-        while (loadLastPosts > lastPostsLink.size()) {
-            String currPage = String.format(gossipIndexPage, lastPage--);
-            Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".r-ent");
-            for (Element link : links) {
-                boolean MoreThen50 = false;
-                Elements pushs = link.select(".nrec span");
-                for (Element push : pushs) {
-                    String a = push.ownText();
-                    if (StringUtils.isNumeric(a) && Integer.parseInt(a) > 50) {
-                        MoreThen50 = true;
-                        break;
-                    } else if ("爆".equals(a)) {
-                        MoreThen50 = true;
-                        break;
-                    }
-                }
-                if (!MoreThen50) {
-                    continue;
-                }
-                if (lastPostsLink.size() > loadLastPosts) {
-                    break;
-                }
-                Elements titles = link.select(".title > a");
-                for (Element title : titles) {
-                    lastPostsLink.add(title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
-                }
-            }
-        }
-        return String.join("\r\n", lastPostsLink);
-    }
-
-    public static String getHoroscopeEn(String message) {
-
-        String[] result = message.split("&");
-        String sign = result[1];
-
-        sign = sign.toLowerCase();
-
-        String url = "http://theastrologer-api.herokuapp.com/api/horoscope/" + sign + "/today";
-        String charset = "UTF-8";
-
-        try {
-            URLConnection connection = new URL(url).openConnection();
-            connection.setRequestProperty("Accept-Charset", charset);
-            InputStream response = connection.getInputStream();
-
-            String jsonBody = "";
-
-            try (Scanner scanner = new Scanner(response)) {
-                jsonBody += scanner.useDelimiter("\\A").next();
-            }
-
-            JSONObject obj = new JSONObject(jsonBody);
-            String horoscope = obj.getString("horoscope");
-
-            return horoscope;
-        } catch (MalformedURLException e) {
-            return "Problem retrieving horoscope";
-        } catch (IOException e) {
-            return "Problem retrieving horoscope";
-        }
-
-    }
-
-    public static TextMessage getWeather(String message) {
-        String[] cut = message.split("\\$");
-        String region = cut[1];
-        String regionUrl = "https://works.ioa.tw/weather/api/all.json";
-        HashMap<String, String> allMap = new HashMap<String, String>();
-        Elements a = CrawlerPack.start().getFromJson(regionUrl).getElementsByTag("towns");
-        for (Element b : a) {
-            allMap.put(b.getElementsByTag("name").text(), b.getElementsByTag("id").text());
-        }
-        StringBuffer result = new StringBuffer();
-        String detailUrl = "https://works.ioa.tw/weather/api/weathers/" + allMap.get(region) + ".json";
-        Document doc = CrawlerPack.start().getFromJson(detailUrl);
-        result.append("地區：" + region + "\r\n");
-        result.append("敘述：" + doc.select("desc").get(0).text() + "\r\n");
-        result.append("溫度：" + doc.select("temperature").get(0).text() + "°C　\r\n");
-        result.append("體感溫度：" + doc.select("felt_air_temp").get(0).text() + "°C　\r\n");
-        result.append("濕度：" + doc.select("humidity").get(0).text() + "% \r\n");
-
-        return new TextMessage(result.toString());
-    }
-
-    public static String getHoroscope(String message) {
-        String[] result = message.split("#");
-        String sign = result[1];
-
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put("牡羊", "Aries");
-        map.put("金牛", "Taurus");
-        map.put("雙子", "Gemini");
-        map.put("巨蟹", "Cancer");
-        map.put("獅子", "Leo");
-        map.put("處女", "Virgo");
-        map.put("天秤", "Libra");
-        map.put("天蠍", "Scorpio");
-        map.put("射手", "Sagittarius");
-        map.put("魔羯", "Capricorn");
-        map.put("水瓶", "Aquarius");
-        map.put("雙魚", "Pisces");
-
-        String uri = "http://www.daily-zodiac.com/zodiac/" + map.get(sign);
-        String day = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac > h3").text();
-        String article = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac .article").text();
-        return day + "\r\n" + article;
-    }
-
-    public static List<Message> getYoutube(String message) throws Exception {
-
-        String[] result = message.split("&");
-        String queryTerm = result[1];
-
-        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(),
-                new HttpRequestInitializer() {
-                    public void initialize(HttpRequest request) throws IOException {
-                    }
-                }).setApplicationName("youtube-cmdline-search-sample").build();
-
-        YouTube.Search.List search = youtube.search().list("id,snippet");
-
-        String apiKey = "AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk";
-        search.setKey(apiKey);
-        search.setQ(queryTerm);
-        search.setType("video");
-        search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
-        search.setMaxResults(1L);
-        search.setRegionCode("TW");
-        SearchListResponse searchResponse = search.execute();
-        List<SearchResult> searchResultList = searchResponse.getItems();
-
-        if (searchResultList != null) {
-            return prettyPrint(searchResultList);
-        }
-        return null;
-
-    }
-
-    private static List<Message> prettyPrint(List<SearchResult> listSearchResults) {
-        List<Message> messages = new ArrayList<Message>();
-        for (SearchResult singleVideo : listSearchResults) {
-            ResourceId rId = singleVideo.getId();
-            Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-            if (rId.getKind().equals("youtube#video")) {
-                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
-                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
-                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
-            }
-        }
-        return messages;
     }
 
 }
