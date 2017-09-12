@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
@@ -35,8 +36,8 @@ public class RestaurantService {
             String imageUrl = places.get(i).getIconUrl();
             System.out.println(imageUrl);
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
-                    "test",
-                    Arrays.asList(new URIAction(places.get(i).getName(), "test"),
+                    places.get(i).getVicinity(),
+                    Arrays.asList(new MessageAction(places.get(i).getName(), places.get(i).getStatus().toString()),
                             new PostbackAction("Say hello1",
                                     "hello こんにちは")));
             carusels.add(temp);
