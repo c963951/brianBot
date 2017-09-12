@@ -58,10 +58,47 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
-        System.out.println("event: " + event);
+    public void handleDefaultMessageEvent(MessageEvent<LocationMessageContent> event) throws Exception {
+//    public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
+//        System.out.println("event: " + event);
+//        Source source = event.getSource();
+//        List<Message> Messages = new ArrayList<Message>();
+//        String pushId = source.getUserId();
+//        if (source instanceof GroupSource) {
+//            pushId = ((GroupSource)source).getGroupId();
+//        }
+//        else if (source instanceof RoomSource) {
+//            pushId = ((RoomSource)source).getRoomId();
+//        }
+//
+//        String message = ((TextMessageContent)event.getMessage()).getText();
+//        String keyworad = message.substring(1);
+//        if (message.startsWith("%")) {
+//            Messages.add(PTT(keyworad));
+//        }
+//        else if (message.startsWith("#")) {
+//            Messages.add(Horoscope(keyworad));
+//        }
+//        else if (message.startsWith("&")) {
+//            Messages.addAll(getYoutube(keyworad));
+//        }
+//        else if (message.startsWith("$")) {
+//            Messages.add(Weather(keyworad));
+//        }
+//        else if (message.equals("Botbye")) {
+//            if (source instanceof GroupSource) {
+//                lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
+//            }
+//            else if (source instanceof RoomSource) {
+//                lineMessagingClient.leaveRoom(((RoomSource)source).getRoomId()).get();
+//            }
+//            return;
+//        }
+//        if (Messages.isEmpty()) {
+//            return;
+//        }
+//        push(channelToken, pushId, Messages);
         Source source = event.getSource();
-        List<Message> Messages = new ArrayList<Message>();
         String pushId = source.getUserId();
         if (source instanceof GroupSource) {
             pushId = ((GroupSource)source).getGroupId();
@@ -69,34 +106,8 @@ public class EchoApplication {
         else if (source instanceof RoomSource) {
             pushId = ((RoomSource)source).getRoomId();
         }
-
-        String message = ((TextMessageContent)event.getMessage()).getText();
-        String keyworad = message.substring(1);
-        if (message.startsWith("%")) {
-            Messages.add(PTT(keyworad));
-        }
-        else if (message.startsWith("#")) {
-            Messages.add(Horoscope(keyworad));
-        }
-        else if (message.startsWith("&")) {
-            Messages.addAll(getYoutube(keyworad));
-        }
-        else if (message.startsWith("$")) {
-            Messages.add(Weather(keyworad));
-        }
-        else if (message.equals("Botbye")) {
-            if (source instanceof GroupSource) {
-                lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
-            }
-            else if (source instanceof RoomSource) {
-                lineMessagingClient.leaveRoom(((RoomSource)source).getRoomId()).get();
-            }
-            return;
-        }
-        if (Messages.isEmpty()) {
-            return;
-        }
-        push(channelToken, pushId, Messages);
+        TemplateMessage message = getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude());
+        push2(channelToken, pushId, message);
     }
 
     public static TextMessage PTT(String message) {
