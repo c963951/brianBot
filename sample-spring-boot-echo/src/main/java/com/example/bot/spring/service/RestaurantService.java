@@ -26,8 +26,7 @@ public class RestaurantService {
 
     public RestaurantService() {}
 
-    public List<Message> getRestaurant(double lat, double lng) {
-        List<Message> messages = new ArrayList<Message>();
+    public TemplateMessage getRestaurant(double lat, double lng) {
         String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
         Param a = new Param("types");
         a.value("food");
@@ -41,8 +40,7 @@ public class RestaurantService {
             carusels.add(temp);
         }
         TemplateMessage templateMessage = new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
-        messages.add(templateMessage);
-        return messages;
+        return templateMessage;
     }
 
     private static String createUri(String path) {

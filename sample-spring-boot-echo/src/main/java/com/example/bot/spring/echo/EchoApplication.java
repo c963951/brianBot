@@ -23,6 +23,7 @@ import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -45,7 +46,6 @@ public class EchoApplication {
     @EventMapping
     public void handleLocationMessageEvent(MessageEvent<LocationMessageContent> event) throws Exception {
         Source source = event.getSource();
-        List<Message> Messages = new ArrayList<Message>();
         String pushId = source.getUserId();
         if (source instanceof GroupSource) {
             pushId = ((GroupSource)source).getGroupId();
@@ -53,8 +53,8 @@ public class EchoApplication {
         else if (source instanceof RoomSource) {
             pushId = ((RoomSource)source).getRoomId();
         }
-        Messages.addAll(getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude()));
-        push(channelToken, pushId, Messages);
+        Message message = getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude());
+        push2(channelToken, pushId, message);
     }
 
     @EventMapping
@@ -119,8 +119,8 @@ public class EchoApplication {
         return result;
     }
 
-    public static List<Message> getRestaurant(double lat, double lng) throws Exception {
-        List<Message> result = RestaurantService.getInstance().getRestaurant(lat, lng);
+    public static TemplateMessage getRestaurant(double lat, double lng) throws Exception {
+        TemplateMessage result = RestaurantService.getInstance().getRestaurant(lat, lng);
         return result;
     }
 
@@ -128,6 +128,16 @@ public class EchoApplication {
             throws Exception {
         try {
             lineMessagingClient.pushMessage(new PushMessage(pushId, messages)).get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void push2(@NonNull String channelToken, @NonNull String pushId, @NonNull Message message)
+            throws Exception {
+        try {
+            lineMessagingClient.pushMessage(new PushMessage(pushId, message)).get();
         }
         catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
