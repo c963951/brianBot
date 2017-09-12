@@ -18,8 +18,7 @@ apply plugin: 'org.springframework.boot'
 
 dependencies {
     compile project(':line-bot-spring-boot')
-    compile 'se.walkercrou:google-places-api-java:2.1.2'
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    compile 'se.walkercrou:google-places-api-java:2.1.7'
     compile 'org.projectlombok:lombok:1.16.18'
     compile 'com.github.abola:crawler:1.1'
     compile group: 'com.google.apis', name: 'google-api-services-youtube', version: 'v3-rev183-1.22.0'
