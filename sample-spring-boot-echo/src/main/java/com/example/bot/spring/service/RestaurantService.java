@@ -35,21 +35,23 @@ public class RestaurantService {
         List<Place> places = client.getNearbyPlaces(lat, lng, 500, a);
         List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
         for (int i = 0; i < 5; i++) {
-            String imageUrl = createUri(places.get(i).getIconUrl());
+            String imageUrl = places.get(i).getIconUrl();
             System.out.println(imageUrl);
-            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
-                    places.get(i).getAddress(),
-                    Arrays.asList(new URIAction(places.get(i).getName(), places.get(i).getGoogleUrl()),
-                            new MessageAction("test", "test"),
-                            new PostbackAction("言 hello2", "hello こんにちは", "hello こんにちは")));
+            CarouselColumn temp = new CarouselColumn(imageUrl, "hoge", "fuga", Arrays.asList(
+                    new URIAction("Go to line.me",
+                                  "https://line.me"),
+                    new PostbackAction("Say hello1",
+                                       "hello こんにちは")
+            ));
+//            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
+//                    places.get(i).getAddress(),
+//                    Arrays.asList(new URIAction(places.get(i).getName(), places.get(i).getGoogleUrl()),
+//                            new MessageAction("test", "test"),
+//                            new PostbackAction("言 hello2", "hello こんにちは", "hello こんにちは")));
             carusels.add(temp);
         }
         TemplateMessage templateMessage = new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
         return templateMessage;
-    }
-
-    private static String createUri(String path) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(path).build().toUriString();
     }
 
 }
