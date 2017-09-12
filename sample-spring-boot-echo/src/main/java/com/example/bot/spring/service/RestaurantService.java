@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.linecorp.bot.model.action.MessageAction;
-import com.linecorp.bot.model.action.PostbackAction;
-import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
@@ -37,9 +35,7 @@ public class RestaurantService {
             System.out.println(imageUrl);
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
                     places.get(i).getVicinity(),
-                    Arrays.asList(new MessageAction(places.get(i).getName(), places.get(i).getStatus().toString()),
-                            new PostbackAction("Say hello1",
-                                    "hello こんにちは")));
+                    Arrays.asList(new MessageAction(places.get(i).getName(), places.get(i).getStatus().toString())));
             carusels.add(temp);
         }
         TemplateMessage templateMessage = new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
