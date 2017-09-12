@@ -35,8 +35,8 @@ public class RestaurantService {
             String imageUrl = places.get(i).getIconUrl();
             System.out.println(imageUrl);
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
-                    "",
-                    Arrays.asList(new URIAction(places.get(i).getName(), ""),
+                    "test",
+                    Arrays.asList(new URIAction(places.get(i).getName(), "test"),
                             new PostbackAction("Say hello1",
                                     "hello こんにちは")));
             carusels.add(temp);
