@@ -34,10 +34,10 @@ public class RestaurantService {
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlaces(lat, lng, 500, a);
         List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
-        for (Place p : places) {
-            String imageUrl = createUri(p.getIconUrl());
-            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(p.getRating()), p.getAddress(),
-                    Arrays.asList(new URIAction(p.getName(), p.getGoogleUrl())));
+        for (int i = 0 ;i< 5;i++) {
+            String imageUrl = createUri(places.get(i).getIconUrl());
+            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()), places.get(i).getAddress(),
+                    Arrays.asList(new URIAction(places.get(i).getName(), places.get(i).getGoogleUrl())));
             carusels.add(temp);
         }
         TemplateMessage templateMessage = new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
