@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.bot.spring.service.HoroscopeService;
 import com.example.bot.spring.service.PttService;
+import com.example.bot.spring.service.RestaurantService;
 import com.example.bot.spring.service.WeatherService;
 import com.example.bot.spring.service.YoutubeService;
 import com.linecorp.bot.client.LineMessagingClient;
@@ -47,11 +48,12 @@ public class EchoApplication {
         List<Message> Messages = new ArrayList<Message>();
         String pushId = source.getUserId();
         if (source instanceof GroupSource) {
-            pushId = ((GroupSource) source).getGroupId();
-        } else if (source instanceof RoomSource) {
-            pushId = ((RoomSource) source).getRoomId();
+            pushId = ((GroupSource)source).getGroupId();
         }
-        Messages.add(new TextMessage(event.getMessage().getAddress()));
+        else if (source instanceof RoomSource) {
+            pushId = ((RoomSource)source).getRoomId();
+        }
+        Messages.addAll(getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude()));
         push(channelToken, pushId, Messages);
     }
 
@@ -62,26 +64,32 @@ public class EchoApplication {
         List<Message> Messages = new ArrayList<Message>();
         String pushId = source.getUserId();
         if (source instanceof GroupSource) {
-            pushId = ((GroupSource) source).getGroupId();
-        } else if (source instanceof RoomSource) {
-            pushId = ((RoomSource) source).getRoomId();
+            pushId = ((GroupSource)source).getGroupId();
+        }
+        else if (source instanceof RoomSource) {
+            pushId = ((RoomSource)source).getRoomId();
         }
 
-        String message = ((TextMessageContent) event.getMessage()).getText();
+        String message = ((TextMessageContent)event.getMessage()).getText();
         String keyworad = message.substring(1);
         if (message.startsWith("%")) {
             Messages.add(PTT(keyworad));
-        } else if (message.startsWith("#")) {
+        }
+        else if (message.startsWith("#")) {
             Messages.add(Horoscope(keyworad));
-        } else if (message.startsWith("&")) {
+        }
+        else if (message.startsWith("&")) {
             Messages.addAll(getYoutube(keyworad));
-        } else if (message.startsWith("$")) {
+        }
+        else if (message.startsWith("$")) {
             Messages.add(Weather(keyworad));
-        } else if (message.equals("Botbye")) {
+        }
+        else if (message.equals("Botbye")) {
             if (source instanceof GroupSource) {
-                lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
-            } else if (source instanceof RoomSource) {
-                lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
+                lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
+            }
+            else if (source instanceof RoomSource) {
+                lineMessagingClient.leaveRoom(((RoomSource)source).getRoomId()).get();
             }
             return;
         }
@@ -111,11 +119,17 @@ public class EchoApplication {
         return result;
     }
 
+    public static List<Message> getRestaurant(double lat, double lng) throws Exception {
+        List<Message> result = RestaurantService.getInstance().getRestaurant(lat, lng);
+        return result;
+    }
+
     private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)
             throws Exception {
         try {
             lineMessagingClient.pushMessage(new PushMessage(pushId, messages)).get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
