@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.linecorp.bot.model.action.MessageAction;
-import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
@@ -37,17 +33,9 @@ public class RestaurantService {
         for (int i = 0; i < 5; i++) {
             String imageUrl = places.get(i).getIconUrl();
             System.out.println(imageUrl);
-            CarouselColumn temp = new CarouselColumn(imageUrl, "hoge", "fuga", Arrays.asList(
-                    new URIAction("Go to line.me",
-                                  "https://line.me"),
-                    new PostbackAction("Say hello1",
-                                       "hello こんにちは")
-            ));
-//            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
-//                    places.get(i).getAddress(),
-//                    Arrays.asList(new URIAction(places.get(i).getName(), places.get(i).getGoogleUrl()),
-//                            new MessageAction("test", "test"),
-//                            new PostbackAction("言 hello2", "hello こんにちは", "hello こんにちは")));
+            CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
+                    places.get(i).getAddress(),
+                    Arrays.asList(new URIAction(places.get(i).getName(), places.get(i).getGoogleUrl())));
             carusels.add(temp);
         }
         TemplateMessage templateMessage = new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
