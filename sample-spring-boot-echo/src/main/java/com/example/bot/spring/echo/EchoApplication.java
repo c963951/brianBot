@@ -53,7 +53,7 @@ public class EchoApplication {
         else if (source instanceof RoomSource) {
             pushId = ((RoomSource)source).getRoomId();
         }
-        Message message = getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude());
+        TemplateMessage message = getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude());
         push2(channelToken, pushId, message);
     }
 
@@ -134,7 +134,7 @@ public class EchoApplication {
         }
     }
 
-    private void push2(@NonNull String channelToken, @NonNull String pushId, @NonNull Message message)
+    private void push2(@NonNull String channelToken, @NonNull String pushId, @NonNull TemplateMessage message)
             throws Exception {
         try {
             lineMessagingClient.pushMessage(new PushMessage(pushId, message)).get();
