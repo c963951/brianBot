@@ -26,14 +26,14 @@ public class RestaurantService {
     public TemplateMessage getRestaurant(double lat, double lng) {
         String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
         Param[] params = new Param[2];
-        Param a = new Param("types");
-        a.value("food");
+        Param a = new Param("language");
+        a.value("zh-TW");
         Param b = new Param("language");
         a.value("zh-TW");
         params[0] = a;
         params[1] = b;
         GooglePlaces client = new GooglePlaces(apiKey);
-        List<Place> places = client.getNearbyPlaces(lat, lng, 500, params);
+        List<Place> places = client.getNearbyPlaces(lat, lng, 500, a);
         List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
         for (int i = 0; i < 5; i++) {
             String imageUrl = places.get(i).getIconUrl();
