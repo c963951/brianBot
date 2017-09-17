@@ -60,7 +60,7 @@ public class EchoApplication {
     }
 
     @EventMapping
-    public void handleDefaultMessageEvent(MessageEvent<MessageContent> event) throws Exception {
+    public void handleDefaultMessageEvent(MessageEvent<TextMessageContent> event) throws Exception {
         System.out.println("event: " + event);
         Source source = event.getSource();
         List<Message> Messages = new ArrayList<Message>();
