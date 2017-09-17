@@ -11,6 +11,7 @@ import com.linecorp.bot.model.message.template.CarouselTemplate;
 
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
+import se.walkercrou.places.Photo;
 import se.walkercrou.places.Place;
 
 public class RestaurantService {
@@ -35,11 +36,16 @@ public class RestaurantService {
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlaces(lat, lng, 500, params);
         List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
-        String photoUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="+apiKey+"&photoreference=";
+        String photoUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=" + apiKey
+                + "&photoreference=";
         for (int i = 1; i < 6; i++) {
-            String imageUrl = photoUrl+places.get(i).getPhotos().get(0).getReference();
+            String imageUrl = photoUrl;
+            for (Photo p : places.get(i).getPhotos()) {
+                imageUrl = imageUrl + p.getReference();
+                break;
+            }
             System.out.println(imageUrl);
-            if(places.get(i).getRating() < 4 && carusels.size() != 0) {
+            if (places.get(i).getRating() < 4 && carusels.size() != 0) {
                 i--;
             }
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
