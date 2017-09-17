@@ -44,7 +44,7 @@ public class RestaurantService {
             String imageUrl = photoUrl;
             for (Photo p : places.get(i).getPhotos()) {
                 imageUrl = imageUrl + p.getReference();
-                System.out.println(p.getReference());
+                System.out.println(places.get(i).getPhotos().size());
                 if(StringUtils.isEmpty(p.getReference())) {
                     continue;
                 }
