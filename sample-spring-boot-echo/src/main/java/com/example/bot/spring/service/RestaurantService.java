@@ -35,9 +35,13 @@ public class RestaurantService {
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlaces(lat, lng, 500, params);
         List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
+        String photoUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="+apiKey+"&photoreference=";
         for (int i = 0; i < 5; i++) {
-            String imageUrl = places.get(i).getIconUrl();
+            String imageUrl = photoUrl+places.get(i).getPhotos().get(0).getReference();
             System.out.println(imageUrl);
+            if(places.get(i).getRating() < 4 && carusels.size() != 0) {
+                i--;
+            }
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
                     places.get(i).getVicinity(),
                     Arrays.asList(new MessageAction(places.get(i).getName(), places.get(i).getStatus().toString())));
