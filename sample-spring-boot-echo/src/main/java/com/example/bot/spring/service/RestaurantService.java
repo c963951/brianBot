@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
@@ -42,9 +44,12 @@ public class RestaurantService {
             String imageUrl = photoUrl;
             for (Photo p : places.get(i).getPhotos()) {
                 imageUrl = imageUrl + p.getReference();
+                System.out.println(p.getReference());
+                if(StringUtils.isEmpty(p.getReference())) {
+                    continue;
+                }
                 break;
             }
-            System.out.println(imageUrl);
 
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
                     places.get(i).getVicinity(),
