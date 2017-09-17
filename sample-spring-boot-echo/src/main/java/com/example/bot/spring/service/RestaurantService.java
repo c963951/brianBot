@@ -45,9 +45,7 @@ public class RestaurantService {
                 break;
             }
             System.out.println(imageUrl);
-            if (places.get(i).getRating() < 4 && carusels.size() != 0) {
-                i--;
-            }
+
             CarouselColumn temp = new CarouselColumn(imageUrl, Double.toString(places.get(i).getRating()),
                     places.get(i).getVicinity(),
                     Arrays.asList(new MessageAction(places.get(i).getName(), places.get(i).getStatus().toString())));
