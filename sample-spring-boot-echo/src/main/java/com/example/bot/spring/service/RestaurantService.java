@@ -65,7 +65,7 @@ public class RestaurantService {
               "地址:" + p.getVicinity(),
               Arrays.asList(
                   new URIAction(
-                      "map位置點我",
+                      "map位置",
                       "https://www.google.com/maps/search/?api=1&query= &query_place_id="
                           + p.getPlaceId())));
       carusels.add(temp);
