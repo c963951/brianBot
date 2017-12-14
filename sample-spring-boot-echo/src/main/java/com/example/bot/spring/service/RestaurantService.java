@@ -40,11 +40,15 @@ public class RestaurantService {
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
             + "&photoreference=";
+    places.sort(
+        (Place p1, Place p2) ->
+            p1.getRating() > p2.getRating() ? -1 : (p1.getRating() < p2.getRating() ? 1 : 0));
     for (Place p : places) {
       JSONObject json = p.getJson();
       if (json.isNull("photos")) continue;
       String imageUrl =
           photoUrl + json.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
+      if (carusels.size() == 5) break;
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
