@@ -36,7 +36,7 @@ public class RestaurantService {
             Param.name("type").value("food"),
             Param.name("language").value("zh-TW"));
     List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
-    String mapUrl = "ttps://www.google.com/maps/search/?api=1&query= &query_place_id=";
+    String mapUrl = "https://www.google.com/maps/search/?api=1&query= &query_place_id=";
     String photoUrl =
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
