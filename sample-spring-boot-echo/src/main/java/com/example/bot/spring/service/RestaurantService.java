@@ -60,7 +60,7 @@ public class RestaurantService {
                       "https://www.google.com/maps/search/?api=1&query= &query_place_id="
                           + p.getPlaceId())));
       carusels.add(temp);
-    }
+    } 
     TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
     return templateMessage;
   }
