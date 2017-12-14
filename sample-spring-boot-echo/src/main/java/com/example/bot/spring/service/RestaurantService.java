@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import com.linecorp.bot.model.action.MessageAction;
+import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
@@ -33,9 +33,10 @@ public class RestaurantService {
             lat,
             lng,
             1000,
-            Param.name("type").value("restaurant"),
+            Param.name("type").value("food"),
             Param.name("language").value("zh-TW"));
     List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
+    String mapUrl = "ttps://www.google.com/maps/search/?api=1&query= &query_place_id=";
     String photoUrl =
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
@@ -49,16 +50,16 @@ public class RestaurantService {
       String imageUrl =
           photoUrl + json.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
       if (carusels.size() == 5) break;
+      String detail = "店名:" + p.getName() + "\n" + "營業狀態:" + p.getStatus().toString();
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
-              Double.toString(p.getRating()),
-              p.getVicinity(),
-              Arrays.asList(new MessageAction(p.getName(), p.getStatus().toString())));
+              detail,
+              "地址:" + p.getVicinity(),
+              Arrays.asList(new URIAction("map位置點我", mapUrl + p.getPlaceId())));
       carusels.add(temp);
     }
-    TemplateMessage templateMessage =
-        new TemplateMessage("Carousel alt text", new CarouselTemplate(carusels));
+    TemplateMessage templateMessage = new TemplateMessage("位置找餐廳", new CarouselTemplate(carusels));
     return templateMessage;
   }
 }
