@@ -53,8 +53,12 @@ public class RestaurantService {
           new CarouselColumn(
               imageUrl,
               p.getName(),
-              p.getRating()+ "\r\n" + p.getStatus() + "\r\n" + p.getVicinity(),
-              Arrays.asList(new URIAction("map", "https://www.google.com/maps/search/?api=1&query= &query_place_id=")));
+              p.getRating() + "\r\n" + p.getStatus() + "\r\n" + p.getVicinity(),
+              Arrays.asList(
+                  new URIAction(
+                      "map",
+                      "https://www.google.com/maps/search/?api=1&query=%20&query_place_id="
+                          + p.getPlaceId())));
       carusels.add(temp);
     }
     TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
