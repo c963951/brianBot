@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.message.TemplateMessage;
@@ -13,7 +13,6 @@ import com.linecorp.bot.model.message.template.CarouselTemplate;
 
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
-import se.walkercrou.places.Photo;
 import se.walkercrou.places.Place;
 
 public class RestaurantService {
@@ -41,25 +40,17 @@ public class RestaurantService {
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
             + "&photoreference=";
-    for (int i = 1; i < 6; i++) {
-      String imageUrl = photoUrl;
-      for (Photo p : places.get(i).getPhotos()) {
-        imageUrl = imageUrl + p.getReference();
-        System.out.println(places.get(i).getPhotos().size());
-        if (StringUtils.isEmpty(p.getReference())) {
-          continue;
-        }
-        break;
-      }
-
+    for (Place p : places) {
+      JSONObject json = p.getJson();
+      if (json.isNull("photos")) continue;
+      String imageUrl =
+          photoUrl + json.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
-              Double.toString(places.get(i).getRating()),
-              places.get(i).getVicinity(),
-              Arrays.asList(
-                  new MessageAction(
-                      places.get(i).getName(), places.get(i).getStatus().toString())));
+              Double.toString(p.getRating()),
+              p.getVicinity(),
+              Arrays.asList(new MessageAction(p.getName(), p.getStatus().toString())));
       carusels.add(temp);
     }
     TemplateMessage templateMessage =
