@@ -49,28 +49,19 @@ public class RestaurantService {
       String imageUrl =
           photoUrl + json.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
       if (carusels.size() == 5) break;
-      String detail =
-          "店名:"
-              + p.getName()
-              + "\r\n"
-              + "評分"
-              + p.getRating()
-              + "\r\n"
-              + "營業狀態:"
-              + p.getStatus().toString();
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
-              detail,
-              "地址:" + p.getVicinity(),
+              p.getName(),
+              "評分:" + p.getRating() + "\r\n" + "地址:" + p.getVicinity(),
               Arrays.asList(
                   new URIAction(
-                      "map位置",
+                      "map",
                       "https://www.google.com/maps/search/?api=1&query= &query_place_id="
                           + p.getPlaceId())));
       carusels.add(temp);
     }
-    TemplateMessage templateMessage = new TemplateMessage("位置找餐廳", new CarouselTemplate(carusels));
+    TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
     return templateMessage;
   }
 }
