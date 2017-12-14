@@ -53,14 +53,10 @@ public class RestaurantService {
           new CarouselColumn(
               imageUrl,
               p.getName(),
-              "評分:" + p.getRating() + "\r\n" + "地址:" + p.getVicinity(),
-              Arrays.asList(
-                  new URIAction(
-                      "map",
-                      "https://www.google.com/maps/search/?api=1&query= &query_place_id="
-                          + p.getPlaceId())));
+              p.getRating() + "\r\n" + p.getVicinity(),
+              Arrays.asList(new URIAction("Go to line.me", "https://line.me")));
       carusels.add(temp);
-    } 
+    }
     TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
     return templateMessage;
   }
