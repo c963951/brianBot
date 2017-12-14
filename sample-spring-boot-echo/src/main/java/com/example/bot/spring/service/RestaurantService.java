@@ -53,10 +53,15 @@ public class RestaurantService {
           new CarouselColumn(
               imageUrl,
               p.getName(),
-              p.getRating() + "\r\n" + p.getStatus() + "\r\n" + p.getVicinity(),
+              "評分:"
+                  + p.getRating()
+                  + "\r\n\"營業狀態: + "
+                  + p.getStatus()
+                  + "\r\n地址:"
+                  + p.getVicinity(),
               Arrays.asList(
                   new URIAction(
-                      "map",
+                      "map location",
                       "https://www.google.com/maps/search/?api=1&query=%20&query_place_id="
                           + p.getPlaceId())));
       carusels.add(temp);
