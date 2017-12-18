@@ -28,7 +28,7 @@ public class RateService {
     map.put("香港", "HKD");
     map.put("中國", "CNY");
     map.put("泰國", "THB");
-    String countryRate = map.containsKey("country") ? map.get("country") : country;
+    String countryRate = map.containsKey(country) ? (String) map.get(country) : country;
 
     String ratePage = "http://www.taiwanrate.org/exchange_rate.php?c=" + countryRate;
     List<String> result = new ArrayList<>();
