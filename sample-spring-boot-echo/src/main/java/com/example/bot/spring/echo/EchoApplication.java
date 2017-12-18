@@ -85,7 +85,8 @@ public class EchoApplication {
       Messages.add(Weather(keyworad));
     } else if (message.startsWith("-r ")) {
       Messages.add(getRate(StringUtils.removeStart(message, "-r ")));
-    } else if (message.startsWith("-gas ")) {
+    } else if (message.startsWith("-gas")) {
+      Messages.add(getGas());
     } else if (message.equals("Botbye")) {
       if (source instanceof GroupSource) {
         lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
