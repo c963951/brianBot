@@ -27,7 +27,7 @@ import com.linecorp.bot.model.message.TextMessage;
 
 public class CalendarService {
   /** Application name. */
-  private final static String APPLICATION_NAME = "Google Calendar API Java Quickstart";
+  private final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
 
   /** Directory to store user credentials for this application. */
   private static final java.io.File DATA_STORE_DIR =
@@ -37,7 +37,7 @@ public class CalendarService {
   private static FileDataStoreFactory DATA_STORE_FACTORY;
 
   /** Global instance of the JSON factory. */
-  private final static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+  private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   /** Global instance of the HTTP transport. */
   private static HttpTransport HTTP_TRANSPORT;
@@ -56,7 +56,7 @@ public class CalendarService {
    * <p>If modifying these scopes, delete your previously saved credentials at
    * ~/.credentials/calendar-java-quickstart
    */
-  private final static List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR_READONLY);
+  private final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR_READONLY);
 
   static {
     try {
@@ -74,7 +74,7 @@ public class CalendarService {
    * @return an authorized Credential object.
    * @throws IOException
    */
-  public static Credential authorize() throws IOException {
+  public Credential authorize() throws IOException {
     // Load client secrets.
     InputStream in = CalendarService.class.getResourceAsStream("/client_secret.json");
     GoogleClientSecrets clientSecrets =
@@ -98,7 +98,7 @@ public class CalendarService {
    * @return an authorized Calendar client service
    * @throws IOException
    */
-  public static Calendar getCalendarService() throws IOException {
+  public Calendar getCalendarService() throws IOException {
     Credential credential = authorize();
     return new com.google.api.services.calendar.Calendar.Builder(
             HTTP_TRANSPORT, JSON_FACTORY, credential)
