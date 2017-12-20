@@ -20,6 +20,7 @@ import com.example.bot.spring.service.YoutubeService;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.PostbackEvent;
 import com.linecorp.bot.model.event.message.LocationMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
@@ -57,9 +58,7 @@ public class EchoApplication {
     } else if (source instanceof RoomSource) {
       pushId = ((RoomSource) source).getRoomId();
     }
-    TemplateMessage message =
-        getRestaurant(event.getMessage().getLatitude(), event.getMessage().getLongitude());
-    Messages.add(message);
+    Messages.add(getPost(event.getMessage().getLatitude(), event.getMessage().getLongitude()));
     push(channelToken, pushId, Messages);
   }
 
@@ -88,8 +87,6 @@ public class EchoApplication {
       Messages.add(getRate(StringUtils.removeStart(message, "-r ")));
     } else if (message.startsWith("-gas")) {
       Messages.add(getGas());
-    } else if (message.startsWith("-post")) {
-      Messages.add(getPost());
     } else if (message.equals("Botbye")) {
       if (source instanceof GroupSource) {
         lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
@@ -101,6 +98,21 @@ public class EchoApplication {
     if (Messages.isEmpty()) {
       return;
     }
+    push(channelToken, pushId, Messages);
+  }
+
+  @EventMapping
+  public void handlePostbackEvent(PostbackEvent event) throws Exception {
+    Source source = event.getSource();
+    String pushId = source.getUserId();
+    String data = event.getPostbackContent().getData();
+    List<Message> Messages = new ArrayList<>();
+    if (source instanceof GroupSource) {
+      pushId = ((GroupSource) source).getGroupId();
+    } else if (source instanceof RoomSource) {
+      pushId = ((RoomSource) source).getRoomId();
+    }
+    Messages.add(getPlaces(data));
     push(channelToken, pushId, Messages);
   }
 
@@ -139,8 +151,13 @@ public class EchoApplication {
     return new TextMessage(result);
   }
 
-  public static TemplateMessage getPost() throws Exception {
-    TemplateMessage result = PlaceService.getInstance().getCarousel();
+  public static TemplateMessage getPost(double lat, double lng) throws Exception {
+    TemplateMessage result = PlaceService.getInstance().getCarousel(lat, lng);
+    return result;
+  }
+
+  public static TemplateMessage getPlaces(String data) throws Exception {
+    TemplateMessage result = PlaceService.getInstance().getGooglePlaces(data);
     return result;
   }
 
