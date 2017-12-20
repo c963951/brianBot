@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.bot.spring.service.GasService;
 import com.example.bot.spring.service.HoroscopeService;
+import com.example.bot.spring.service.PlaceService;
 import com.example.bot.spring.service.PttService;
 import com.example.bot.spring.service.RateService;
 import com.example.bot.spring.service.RestaurantService;
@@ -36,7 +37,7 @@ import lombok.NonNull;
 @LineMessageHandler
 public class EchoApplication {
 
-  private String channelToken =
+  private final String channelToken =
       "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
 
   @Autowired private LineMessagingClient lineMessagingClient;
@@ -87,6 +88,8 @@ public class EchoApplication {
       Messages.add(getRate(StringUtils.removeStart(message, "-r ")));
     } else if (message.startsWith("-gas")) {
       Messages.add(getGas());
+    } else if (message.startsWith("-post")) {
+      Messages.add(getPost());
     } else if (message.equals("Botbye")) {
       if (source instanceof GroupSource) {
         lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
@@ -134,6 +137,11 @@ public class EchoApplication {
   public static TextMessage getGas() {
     String result = GasService.getInstance().getGasMessage();
     return new TextMessage(result);
+  }
+
+  public static TemplateMessage getPost() throws Exception {
+    TemplateMessage result = PlaceService.getInstance().getCarousel();
+    return result;
   }
 
   private void push(

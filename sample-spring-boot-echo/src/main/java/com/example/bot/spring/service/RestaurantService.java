@@ -33,7 +33,7 @@ public class RestaurantService {
             lat,
             lng,
             1000,
-            Param.name("type").value("food"),
+            Param.name("type").value("restaurant"),
             Param.name("language").value("zh-TW"));
     List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
     String photoUrl =
