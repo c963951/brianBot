@@ -89,7 +89,7 @@ public class PlaceService {
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
-              p.getName(),
+              title,
               detail,
               Arrays.asList(
                   new URIAction(
