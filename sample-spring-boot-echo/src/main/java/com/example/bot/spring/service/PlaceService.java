@@ -36,9 +36,19 @@ public class PlaceService {
             "googleMap",
             Arrays.asList(
                 new PostbackAction("找餐廳", lat + "," + lng + ",restaurant"),
-                new PostbackAction("找停車場", lat + "," + lng + ",gas_station"),
-                new PostbackAction("找加油站", lat + "," + lng + ",parking")));
+                new PostbackAction("找咖啡廳", lat + "," + lng + ",cafe"),
+                new PostbackAction("找bar", lat + "," + lng + ",bar")));
     carusels.add(temp1);
+    CarouselColumn temp2 =
+        new CarouselColumn(
+            null,
+            null,
+            "googleMap",
+            Arrays.asList(
+                new PostbackAction("找捷運", lat + "," + lng + ",subway_station"),
+                new PostbackAction("找停車場", lat + "," + lng + ",parking"),
+                new PostbackAction("找加油站", lat + "," + lng + ",gas_station")));
+    carusels.add(temp2);
     TemplateMessage templateMessage =
         new TemplateMessage("findPlace", new CarouselTemplate(carusels));
     return templateMessage;
@@ -83,7 +93,7 @@ public class PlaceService {
                           + p.getPlaceId())));
       carusels.add(temp);
     }
-    TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
+    TemplateMessage templateMessage = new TemplateMessage(place, new CarouselTemplate(carusels));
     return templateMessage;
   }
 }
