@@ -63,14 +63,14 @@ public class PlaceService {
     String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
     GooglePlaces client = new GooglePlaces(apiKey);
     List<Place> places =
-        client.getNearbyPlaces(
-            lat, lng, 1000, Param.name("type").value(place), Param.name("language").value("zh-TW"));
+        client.getNearbyPlacesRankedByDistance(
+            lat, lng, Param.name("type").value(place), Param.name("language").value("zh-TW"));
     List<CarouselColumn> carusels = new ArrayList<CarouselColumn>();
     String photoUrl =
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
             + "&photoreference=";
-    if ("restaurant".equals(place)) {
+    if ("restaurant,cafe,bar".indexOf(place) != -1) {
       places.sort(
           (Place p1, Place p2) ->
               p1.getRating() > p2.getRating() ? -1 : (p1.getRating() < p2.getRating() ? 1 : 0));
