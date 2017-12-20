@@ -60,9 +60,11 @@ public class PlaceService {
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key="
             + apiKey
             + "&photoreference=";
-    places.sort(
-        (Place p1, Place p2) ->
-            p1.getRating() > p2.getRating() ? -1 : (p1.getRating() < p2.getRating() ? 1 : 0));
+    if ("restaurant".equals(place)) {
+      places.sort(
+          (Place p1, Place p2) ->
+              p1.getRating() > p2.getRating() ? -1 : (p1.getRating() < p2.getRating() ? 1 : 0));
+    }
     for (Place p : places) {
       JSONObject json = p.getJson();
       if (json.isNull("photos")) continue;
@@ -81,7 +83,7 @@ public class PlaceService {
                           + p.getPlaceId())));
       carusels.add(temp);
     }
-    TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
+    TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
     return templateMessage;
   }
 }
