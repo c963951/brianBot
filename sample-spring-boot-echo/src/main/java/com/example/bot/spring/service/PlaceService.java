@@ -30,13 +30,14 @@ public class PlaceService {
     List<CarouselColumn> carusels = new ArrayList<>();
 
     CarouselColumn temp1 =
-        new CarouselColumn("", "", "", Arrays.asList(new PostbackAction("找餐廳", "restaurant")));
+        new CarouselColumn(null, null, "", Arrays.asList(new PostbackAction("找餐廳", "restaurant")));
     carusels.add(temp1);
     CarouselColumn temp2 =
-        new CarouselColumn("", "", "", Arrays.asList(new PostbackAction("找加油站", "gas_station")));
+        new CarouselColumn(
+            null, null, "", Arrays.asList(new PostbackAction("找加油站", "gas_station")));
     carusels.add(temp2);
     CarouselColumn temp3 =
-        new CarouselColumn("", "", "", Arrays.asList(new PostbackAction("找停車場", "parking")));
+        new CarouselColumn(null, null, "", Arrays.asList(new PostbackAction("找停車場", "parking")));
     carusels.add(temp3);
     TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
     return templateMessage;
