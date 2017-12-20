@@ -81,9 +81,11 @@ public class PlaceService {
       String imageUrl =
           photoUrl + json.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
       if (carusels.size() == 5) break;
+      String title = p.getName();
       String detail =
           "評分:" + p.getRating() + "\r\n營業狀態:" + p.getStatus() + "\r\n地址:" + p.getVicinity();
       if (detail.length() > 60) detail = detail.substring(0, 60);
+      if (title.length() > 40) title = title.substring(0, 40);
       CarouselColumn temp =
           new CarouselColumn(
               imageUrl,
