@@ -15,6 +15,7 @@ import com.example.bot.spring.service.PlaceService;
 import com.example.bot.spring.service.PttService;
 import com.example.bot.spring.service.RateService;
 import com.example.bot.spring.service.RestaurantService;
+import com.example.bot.spring.service.SpotifyService;
 import com.example.bot.spring.service.WeatherService;
 import com.example.bot.spring.service.YoutubeService;
 import com.linecorp.bot.client.LineMessagingClient;
@@ -87,6 +88,8 @@ public class EchoApplication {
       Messages.add(getRate(StringUtils.removeStart(message, "-r ")));
     } else if (message.startsWith("-gas")) {
       Messages.add(getGas());
+    } else if (message.startsWith("spotify")) {
+      Messages.addAll(getSpotify(StringUtils.removeStart(message, "spotify ")));
     } else if (message.equals("Botbye")) {
       if (source instanceof GroupSource) {
         lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
@@ -149,6 +152,11 @@ public class EchoApplication {
   public static TextMessage getGas() {
     String result = GasService.getInstance().getGasMessage();
     return new TextMessage(result);
+  }
+
+  public static List<Message> getSpotify(String message) throws Exception {
+    List<Message> result = SpotifyService.getInstance().getSpotify(message);
+    return result;
   }
 
   public static TemplateMessage getPost(double lat, double lng) throws Exception {
