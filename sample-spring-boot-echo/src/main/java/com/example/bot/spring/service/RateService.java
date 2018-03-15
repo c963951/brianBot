@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -20,7 +21,7 @@ public class RateService {
 
   public RateService() {}
 
-  public String getRateMessage(String country) {
+  public static String getRateMessage(String country) {
     Map<String, String> map = new HashMap<>();
     map.put("日本", "JPY");
     map.put("美國", "USD");
@@ -57,13 +58,25 @@ public class RateService {
     rateEl.sort(
         (Element p1, Element p2) ->
             Float.compare(
-                        Float.parseFloat(p1.select("td:nth-child(2)").text()),
-                        Float.parseFloat(p2.select("td:nth-child(2)").text()))
+                        Float.parseFloat(
+                            NumberUtils.isCreatable(p1.select("td:nth-child(2)").text())
+                                ? p1.select("td:nth-child(2)").text()
+                                : "0"),
+                        Float.parseFloat(
+                            NumberUtils.isCreatable(p1.select("td:nth-child(2)").text())
+                                ? p1.select("td:nth-child(2)").text()
+                                : "0"))
                     == -1
                 ? 0
                 : (Float.compare(
-                            Float.parseFloat(p1.select("td:nth-child(2)").text()),
-                            Float.parseFloat(p2.select("td:nth-child(2)").text()))
+                            Float.parseFloat(
+                                NumberUtils.isCreatable(p1.select("td:nth-child(2)").text())
+                                    ? p1.select("td:nth-child(2)").text()
+                                    : "0"),
+                            Float.parseFloat(
+                                NumberUtils.isCreatable(p1.select("td:nth-child(2)").text())
+                                    ? p1.select("td:nth-child(2)").text()
+                                    : "0"))
                         == -1
                     ? 1
                     : -1));
