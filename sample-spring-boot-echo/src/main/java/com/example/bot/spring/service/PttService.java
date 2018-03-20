@@ -3,6 +3,7 @@ package com.example.bot.spring.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -29,11 +30,11 @@ public class PttService {
         prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
         Integer lastPage = Integer.valueOf(prevPage);
         List<String> lastPostsLink = new ArrayList<>();
-        while (lastPostsLink.size() <= 2) {
+        while (lastPostsLink.size() < 3) {
             String currPage = String.format(gossipIndexPage, lastPage--);
             Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".r-ent");
             for (Element link : links) {
-                if (lastPostsLink.size() == 2) {
+                if (lastPostsLink.size() > 2) {
                     break;
                 }
                 boolean MoreThen50 = false;
@@ -44,7 +45,7 @@ public class PttService {
                         MoreThen50 = true;
                         break;
                     }
-                    else if (Integer.parseInt(a) > 80) {
+                    else if (NumberUtils.isCreatable(a) && Integer.parseInt(a) > 80) {
                         MoreThen50 = true;
                         break;
                     }
@@ -55,7 +56,7 @@ public class PttService {
 
                 Elements titles = link.select(".title > a");
                 for (Element title : titles) {
-                    if (lastPostsLink.size() == 2) {
+                    if (lastPostsLink.size() > 2) {
                         break;
                     }
                     lastPostsLink.add(title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
