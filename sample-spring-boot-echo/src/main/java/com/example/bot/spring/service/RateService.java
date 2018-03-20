@@ -21,7 +21,7 @@ public class RateService {
 
   public RateService() {}
 
-  public static String getRateMessage(String country) {
+  public String getRateMessage(String country) {
     Map<String, String> map = new HashMap<>();
     map.put("日本", "JPY");
     map.put("美國", "USD");

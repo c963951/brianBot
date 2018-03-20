@@ -3,7 +3,6 @@ package com.example.bot.spring.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -16,12 +15,11 @@ public class PttService {
     public static PttService getInstance() {
         return instance;
     }
-    
-    public PttService() {
-    }
+
+    public PttService() {}
 
     public String getPttMessage(String board) {
-        
+
         String gossipMainPage = "https://www.ptt.cc/bbs/" + board + "/index.html";
         String gossipIndexPage = "https://www.ptt.cc/bbs/" + board + "/index%s.html";
 
@@ -30,20 +28,23 @@ public class PttService {
 
         prevPage = prevPage.replaceAll("/bbs/" + board + "/index([0-9]+).html", "$1");
         Integer lastPage = Integer.valueOf(prevPage);
-        Integer loadLastPosts = 3;
-        List<String> lastPostsLink = new ArrayList<String>();
-        while (loadLastPosts > lastPostsLink.size()) {
+        List<String> lastPostsLink = new ArrayList<>();
+        while (lastPostsLink.size() <= 2) {
             String currPage = String.format(gossipIndexPage, lastPage--);
             Elements links = CrawlerPack.start().addCookie("over18", "1").getFromHtml(currPage).select(".r-ent");
             for (Element link : links) {
+                if (lastPostsLink.size() == 2) {
+                    break;
+                }
                 boolean MoreThen50 = false;
                 Elements pushs = link.select(".nrec span");
                 for (Element push : pushs) {
                     String a = push.ownText();
-                    if (StringUtils.isNumeric(a) && Integer.parseInt(a) > 80) {
+                    if ("爆".equals(a)) {
                         MoreThen50 = true;
                         break;
-                    } else if ("爆".equals(a)) {
+                    }
+                    else if (Integer.parseInt(a) > 80) {
                         MoreThen50 = true;
                         break;
                     }
@@ -51,16 +52,16 @@ public class PttService {
                 if (!MoreThen50) {
                     continue;
                 }
-                if (lastPostsLink.size() > loadLastPosts) {
-                    break;
-                }
+
                 Elements titles = link.select(".title > a");
                 for (Element title : titles) {
+                    if (lastPostsLink.size() == 2) {
+                        break;
+                    }
                     lastPostsLink.add(title.ownText() + "\r\n" + "https://www.ptt.cc" + title.attr("href"));
                 }
             }
         }
         return String.join("\r\n", lastPostsLink);
     }
-
 }
