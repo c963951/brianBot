@@ -21,7 +21,7 @@ public class RateService {
 
     public RateService() {}
 
-    public static String getRateMessage(String country) {
+    public String getRateMessage(String country) {
         Map<String, String> map = new HashMap<>();
         map.put("日本", "JPY");
         map.put("美國", "USD");
@@ -38,7 +38,7 @@ public class RateService {
         Element first = rateEl.stream().findFirst().get();
         result.add("如果你需要買" + countryRate + "，在" + first.select("td:first-child").text() + "購買"
                 + first.select("td:last-child").text() + "會比較便宜。\r\n");
-        
+
         rateEl.sort((Element p1, Element p2) -> Float.compare(
                 Float.parseFloat(NumberUtils.isCreatable(p2.select("td:nth-child(3)").text())
                         ? p2.select("td:nth-child(3)").text()
@@ -53,7 +53,7 @@ public class RateService {
                                                 : "0"),
                                         Float.parseFloat(NumberUtils.isCreatable(p1.select("td:nth-child(3)").text())
                                                 ? p1.select("td:nth-child(3)").text()
-                                                : "0")) == -1 ? 1 : -1));        
+                                                : "0")) == -1 ? 1 : -1));
         rateEl.stream().filter(x -> result.size() < 6).forEach(
                 x -> result.add(x.select("td:first-child").text() + " " + x.select("td:last-child").text() + "\r\n"));
 
@@ -80,9 +80,5 @@ public class RateService {
                 x -> buys.add(x.select("td:first-child").text() + " " + x.select("td:nth-child(2)").text() + "\r\n"));
         result.addAll(buys);
         return String.join("", result);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(getRateMessage("JPY"));
     }
 }
