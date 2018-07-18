@@ -20,8 +20,16 @@ import com.linecorp.bot.model.message.AudioMessage;
 
 import lombok.Value;
 
-@Service
 public class TextToSpeechService {
+    
+    private static TextToSpeechService instance = new TextToSpeechService();
+
+    public static TextToSpeechService getInstance() {
+        return instance;
+    }
+
+    public TextToSpeechService() {
+    }
 
     public AudioMessage getTTs(String word) {
         try {

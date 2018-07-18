@@ -49,9 +49,6 @@ public class EchoApplication {
     @Autowired
     private LineMessagingClient lineMessagingClient;
     
-    @Autowired
-    private TextToSpeechService tts;
-    
     public static Path downloadedContentDir;
 
     public static void main(String[] args) throws Exception {
@@ -153,8 +150,8 @@ public class EchoApplication {
         return new TextMessage(result);
     }
     
-    public AudioMessage TTs(String message) {
-        return tts.getTTs(message);
+    public static AudioMessage TTs(String message) {
+        return TextToSpeechService.getInstance().getTTs(message);
     }
 
     public static TextMessage Horoscope(String message) {
