@@ -88,6 +88,9 @@ public class EchoApplication {
         if (message.startsWith("%")) {
             Messages.add(PTT(keyworad));
         }
+        else if (message.startsWith("##")) {
+            Messages.add(TTs(message.substring(2)));
+        }
         else if (message.startsWith("#")) {
             Messages.add(Horoscope(keyworad));
         }
@@ -96,9 +99,6 @@ public class EchoApplication {
         }
         else if (message.startsWith("$")) {
             Messages.add(Weather(keyworad));
-        }
-        else if (message.startsWith("##")) {
-            Messages.add(TTs(message.substring(2)));
         }
         else if (message.startsWith("-r ")) {
             Messages.add(getRate(StringUtils.removeStart(message, "-r ")));
