@@ -18,7 +18,9 @@ import com.google.common.io.ByteStreams;
 import com.linecorp.bot.model.message.AudioMessage;
 
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TextToSpeechService {
 
     private static TextToSpeechService instance = new TextToSpeechService();
@@ -30,14 +32,17 @@ public class TextToSpeechService {
     public TextToSpeechService() {}
 
     public AudioMessage getTTs(String word) {
+        log.info("word(*******************"+word);
         try {
             word = java.net.URLEncoder.encode(word, "UTF-8");
             URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word);
             HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
             urlConn.addRequestProperty("User-Agent", "Mozilla/4.76");
             InputStream audioSrc = urlConn.getInputStream();
+            log.info("audioSrc=========="+audioSrc.read());
             System.out.println("audioSrc=========="+audioSrc.read());
             DownloadedContent mp4 = saveContent("mp4", audioSrc);
+            log.info("mp4url--------------"+mp4.getUri());
             System.out.println("mp4url--------------"+mp4.getUri());
             return new AudioMessage(mp4.getUri(), 1000);
         }
