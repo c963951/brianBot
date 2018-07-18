@@ -1,5 +1,6 @@
 package com.example.bot.spring.service;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,7 +45,8 @@ public class TextToSpeechService {
             URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word);
             HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
             urlConn.addRequestProperty("User-Agent", "Mozilla/4.76");
-            AudioInputStream audioSrc = AudioSystem.getAudioInputStream(url);
+            InputStream in = urlConn.getInputStream();
+            AudioInputStream audioSrc = AudioSystem.getAudioInputStream(new BufferedInputStream(in));
             log.info("audioSrc=========="+audioSrc.read());
             System.out.println("audioSrc=========="+audioSrc.read());
             Clip clip = AudioSystem.getClip();
