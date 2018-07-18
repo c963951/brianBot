@@ -41,10 +41,10 @@ public class TextToSpeechService {
             InputStream audioSrc = urlConn.getInputStream();
             log.info("audioSrc=========="+audioSrc.read());
             System.out.println("audioSrc=========="+audioSrc.read());
-            DownloadedContent mp4 = saveContent("mp4", audioSrc);
+            DownloadedContent mp4 = saveContent("m4a", audioSrc);
             log.info("mp4url--------------"+mp4.getUri());
             System.out.println("mp4url--------------"+mp4.getUri());
-            return new AudioMessage(mp4.getUri(), 1000);
+            return new AudioMessage("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word, 1000);
         }
         catch (IOException e) {
             System.out.println(e.getMessage());
