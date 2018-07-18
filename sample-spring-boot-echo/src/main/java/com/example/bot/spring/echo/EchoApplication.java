@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -150,7 +153,7 @@ public class EchoApplication {
         return new TextMessage(result);
     }
     
-    public static AudioMessage TTs(String message) {
+    public static AudioMessage TTs(String message) throws LineUnavailableException, UnsupportedAudioFileException {
         return TextToSpeechService.getInstance().getTTs(message);
     }
 
