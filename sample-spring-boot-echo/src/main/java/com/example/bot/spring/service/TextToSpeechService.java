@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.bot.spring.echo.EchoApplication;
@@ -21,15 +20,14 @@ import com.linecorp.bot.model.message.AudioMessage;
 import lombok.Value;
 
 public class TextToSpeechService {
-    
+
     private static TextToSpeechService instance = new TextToSpeechService();
 
     public static TextToSpeechService getInstance() {
         return instance;
     }
 
-    public TextToSpeechService() {
-    }
+    public TextToSpeechService() {}
 
     public AudioMessage getTTs(String word) {
         try {
@@ -38,9 +36,10 @@ public class TextToSpeechService {
             HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
             urlConn.addRequestProperty("User-Agent", "Mozilla/4.76");
             InputStream audioSrc = urlConn.getInputStream();
-
+            System.out.println("audioSrc=========="+audioSrc.read());
             DownloadedContent mp4 = saveContent("mp4", audioSrc);
-            return new AudioMessage(mp4.getUri(), 100);
+            System.out.println("mp4url--------------"+mp4.getUri());
+            return new AudioMessage(mp4.getUri(), 1000);
         }
         catch (IOException e) {
             System.out.println(e.getMessage());
@@ -48,18 +47,18 @@ public class TextToSpeechService {
         return null;
     }
 
-    private static DownloadedContent createTempFile(String ext) {
+    private DownloadedContent createTempFile(String ext) {
         String fileName = LocalDateTime.now().toString() + '-' + UUID.randomUUID().toString() + '.' + ext;
         Path tempFile = EchoApplication.downloadedContentDir.resolve(fileName);
         tempFile.toFile().deleteOnExit();
         return new DownloadedContent(tempFile, createUri("/downloaded/" + tempFile.getFileName()));
     }
 
-    private static String createUri(String path) {
+    private String createUri(String path) {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path(path).build().toUriString();
     }
 
-    private static DownloadedContent saveContent(String ext, InputStream in) {
+    private DownloadedContent saveContent(String ext, InputStream in) {
 
         DownloadedContent tempFile = createTempFile(ext);
         try (OutputStream outputStream = Files.newOutputStream(tempFile.path)) {
@@ -72,7 +71,7 @@ public class TextToSpeechService {
     }
 
     @Value
-    public static class DownloadedContent {
+    public class DownloadedContent {
         Path path;
         String uri;
     }
