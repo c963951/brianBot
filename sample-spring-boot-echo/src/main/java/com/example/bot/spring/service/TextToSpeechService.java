@@ -24,16 +24,14 @@ public class TextToSpeechService {
     public TextToSpeechService() {}
 
     public AudioMessage getTTs(String word) throws LineUnavailableException, UnsupportedAudioFileException {
-        log.info("word(*******************" + word);
         try {
             word = java.net.URLEncoder.encode(word, "UTF-8");
             URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word);
             HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
             urlConn.addRequestProperty("User-Agent", "Mozilla/4.76");
             InputStream in = urlConn.getInputStream();
-            log.info("audioSrc==========" + in.read());
             return new AudioMessage(
-                    "https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word, in.read());
+                    "https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word, in.read()/10);
         }
         catch (IOException e) {
             System.out.println(e.getMessage());

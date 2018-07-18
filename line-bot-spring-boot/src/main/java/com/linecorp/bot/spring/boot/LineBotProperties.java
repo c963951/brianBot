@@ -39,18 +39,18 @@ public class LineBotProperties {
      */
     @Valid
     @NotNull
-    private String channelToken;
+    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89/1O/w1cDnyilFU=";
 
     /**
      * Channel secret
      */
     @Valid
     @NotNull
-    private String channelSecret;
+    private String channelSecret = "8f928619348271540a75f7bd171bd4a6";
 
     @Valid
     @NotNull
-    private String apiEndPoint = LineMessagingServiceBuilder.DEFAULT_API_END_POINT;
+    private String apiEndPoint = "https://api.line.me/";
 
     /**
      * Connection timeout in milliseconds
@@ -94,5 +94,6 @@ public class LineBotProperties {
          */
         @NotNull
         URI path = URI.create("/callback");
+        URI push = URI.create("/v2/bot/message/push");
     }
 }
