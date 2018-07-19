@@ -1,7 +1,5 @@
 package com.example.bot.spring.echo;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -14,16 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.example.bot.spring.service.GasService;
-import com.example.bot.spring.service.HoroscopeService;
-import com.example.bot.spring.service.PlaceService;
-import com.example.bot.spring.service.PttService;
-import com.example.bot.spring.service.RateService;
-import com.example.bot.spring.service.RestaurantService;
-import com.example.bot.spring.service.SpotifyService;
-import com.example.bot.spring.service.TextToSpeechService;
-import com.example.bot.spring.service.WeatherService;
-import com.example.bot.spring.service.YoutubeService;
+import com.example.bot.spring.echo.service.ReplyService;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -51,11 +40,11 @@ public class EchoApplication {
 
     @Autowired
     private LineMessagingClient lineMessagingClient;
-    
-    public static Path downloadedContentDir;
+
+    @Autowired
+    ReplyService rplys;
 
     public static void main(String[] args) throws Exception {
-        downloadedContentDir = Files.createTempDirectory("line-bot");
         SpringApplication.run(EchoApplication.class, args);
     }
 
@@ -143,58 +132,48 @@ public class EchoApplication {
         push(channelToken, pushId, Messages);
     }
 
-    public static TextMessage PTT(String message) {
-        String result = PttService.getInstance().getPttMessage(message);
-        return new TextMessage(result);
+    public TextMessage PTT(String message) {
+        return new TextMessage(rplys.getPttMessage(message));
     }
 
-    public static TextMessage Weather(String message) {
-        String result = WeatherService.getInstance().getWeather(message);
-        return new TextMessage(result);
-    }
-    
-    public static AudioMessage TTs(String message) throws LineUnavailableException, UnsupportedAudioFileException {
-        return TextToSpeechService.getInstance().getTTs(message);
+    public TextMessage Weather(String message) {
+        return new TextMessage(rplys.getWeather(message));
     }
 
-    public static TextMessage Horoscope(String message) {
-        String result = HoroscopeService.getInstance().getHoroscope(message);
-        return new TextMessage(result);
+    public AudioMessage TTs(String message) throws LineUnavailableException, UnsupportedAudioFileException {
+        return rplys.getTTs(message);
     }
 
-    public static List<Message> getYoutube(String message) throws Exception {
-        List<Message> result = YoutubeService.getInstance().getYoutube(message);
-        return result;
+    public TextMessage Horoscope(String message) {
+        return new TextMessage(rplys.getHoroscope(message));
     }
 
-    public static TemplateMessage getRestaurant(double lat, double lng) throws Exception {
-        TemplateMessage result = RestaurantService.getInstance().getRestaurant(lat, lng);
-        return result;
+    public List<Message> getYoutube(String message) throws Exception {
+        return rplys.getYoutube(message);
     }
 
-    public static TextMessage getRate(String message) {
-        String result = RateService.getInstance().getRateMessage(message);
-        return new TextMessage(result);
+    public TemplateMessage getRestaurant(double lat, double lng) throws Exception {
+        return rplys.getRestaurant(lat, lng);
     }
 
-    public static TextMessage getGas() {
-        String result = GasService.getInstance().getGasMessage();
-        return new TextMessage(result);
+    public TextMessage getRate(String message) {
+        return new TextMessage(rplys.getRateMessage(message));
     }
 
-    public static List<Message> getSpotify(String message) throws Exception {
-        List<Message> result = SpotifyService.getInstance().getSpotify(message);
-        return result;
+    public TextMessage getGas() {
+        return new TextMessage(rplys.getGasMessage());
     }
 
-    public static TemplateMessage getPost(double lat, double lng) throws Exception {
-        TemplateMessage result = PlaceService.getInstance().getCarousel(lat, lng);
-        return result;
+    public List<Message> getSpotify(String message) throws Exception {
+        return rplys.getSpotify(message);
     }
 
-    public static TemplateMessage getPlaces(String data) throws Exception {
-        TemplateMessage result = PlaceService.getInstance().getGooglePlaces(data);
-        return result;
+    public TemplateMessage getPost(double lat, double lng) throws Exception {
+        return rplys.getCarousel(lat, lng);
+    }
+
+    public TemplateMessage getPlaces(String data) throws Exception {
+        return rplys.getGooglePlaces(data);
     }
 
     private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)
