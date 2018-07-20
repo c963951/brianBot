@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.concurrent.Future;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
@@ -91,9 +93,11 @@ public class ReplyService {
         return day + "\r\n" + article;
     }
 
-    public AudioMessage getTTs(String word) throws LineUnavailableException, UnsupportedAudioFileException {
-        File mp3 = new File("https://c963951.herokuapp.com/tts/" + word);
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)mp3.length());
+    public AudioMessage getTTs(String word) throws IOException   {
+        File mp3 = new File("test.mp3");
+        URL url1 = new URL("https://c963951.herokuapp.com/tts/天天");
+        FileUtils.copyURLToFile(url1, mp3);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)mp3.length() / 1000);
     }
 
     public TemplateMessage getCarousel(double lat, double lng) {
