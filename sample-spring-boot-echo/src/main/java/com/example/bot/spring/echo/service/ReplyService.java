@@ -2,9 +2,6 @@ package com.example.bot.spring.echo.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.io.FileUtils;
@@ -93,11 +92,36 @@ public class ReplyService {
         return day + "\r\n" + article;
     }
 
-    public AudioMessage getTTs(String word) throws IOException   {
+    public AudioMessage getTTs(String word) throws IOException {
         File mp3 = new File("test.mp3");
-        URL url1 = new URL("https://c963951.herokuapp.com/tts/天天");
+        URL url1 = new URL("https://c963951.herokuapp.com/tts/" + word);
         FileUtils.copyURLToFile(url1, mp3);
         return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)mp3.length() / 1000);
+    }
+
+    public AudioMessage getCloudTTs(String word) throws IOException, UnsupportedAudioFileException {
+        File mp3 = new File("test.mp3");
+        URL url1 = new URL("https://c963951.herokuapp.com/googleTTs/" + word);
+        FileUtils.copyURLToFile(url1, mp3);
+        AudioInputStream ain = AudioSystem.getAudioInputStream(mp3);
+        AudioFormat format = ain.getFormat();
+        long frames = ain.getFrameLength();
+        double during = (frames + 0.0) / format.getFrameRate();
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)Math.ceil(during));
+
+    }
+
+    public class AudioContent {
+
+        private String audioContent;
+
+        public String getAudioContent() {
+            return audioContent;
+        }
+
+        public void setAudioContent(String audioContent) {
+            this.audioContent = audioContent;
+        }
     }
 
     public TemplateMessage getCarousel(double lat, double lng) {
@@ -273,7 +297,6 @@ public class ReplyService {
         try {
             Paging<Track> trackPaging = result.execute();
             for (Track t : trackPaging.getItems()) {
-                String url = "";
                 for (Image img : t.getAlbum().getImages()) {
                     messages.add(new ImageMessage(img.getUrl(), img.getUrl()));
                     break;
@@ -306,7 +329,7 @@ public class ReplyService {
     }
 
     public List<Message> getYoutube(String queryTerm) throws IOException {
-
+        log.info("=======youtube start=====");
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(),
                 new HttpRequestInitializer() {
                     public void initialize(HttpRequest request) throws IOException {}

@@ -1,11 +1,9 @@
 package com.example.bot.spring.echo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +138,7 @@ public class EchoApplication {
         return new TextMessage(rplys.getWeather(message));
     }
 
-    public AudioMessage TTs(String message) throws LineUnavailableException, UnsupportedAudioFileException {
+    public AudioMessage TTs(String message) throws IOException {
         return rplys.getTTs(message);
     }
 
