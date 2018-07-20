@@ -42,9 +42,11 @@ public class FileDownloadController {
         urlConn.addRequestProperty("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
         InputStream inn = urlConn.getInputStream();
+        response.reset();
         response.setContentType("audio/mpeg");
-        response.setHeader("Referer", "http://translate.google.com/");
-        response.setHeader("Content-Disposition", "attachment; filename=test.mp3");
+        response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
+        response.setHeader("x-content-type-options","nosniff");
+        response.setHeader("x-xss-protection", "1; mode=block");
         FileCopyUtils.copy(inn, response.getOutputStream());
     }
 
@@ -74,9 +76,11 @@ public class FileDownloadController {
             AudioContent audioContent = gson.fromJson(result, AudioContent.class);
             byte[] bytes = Base64.getDecoder().decode(audioContent.getAudioContent());
             ByteArrayInputStream oInstream = new ByteArrayInputStream(bytes);
+            response.reset();
             response.setContentType("audio/mpeg");
-            response.setHeader("Referer", "http://translate.google.com/");
-            response.setHeader("Content-Disposition", "attachment; filename=test.mp3");
+            response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
+            response.setHeader("x-content-type-options","nosniff");
+            response.setHeader("x-xss-protection", "1; mode=block");
             FileCopyUtils.copy(oInstream, response.getOutputStream());
         }
         catch (IOException ex) {}

@@ -107,7 +107,7 @@ public class ReplyService {
         AudioFormat format = ain.getFormat();
         long frames = ain.getFrameLength();
         double during = (frames + 0.0) / format.getFrameRate();
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)Math.ceil(during));
+        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + word, (int)Math.ceil(during));
 
     }
 

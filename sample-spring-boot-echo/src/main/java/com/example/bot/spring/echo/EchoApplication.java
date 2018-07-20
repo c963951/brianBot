@@ -99,6 +99,9 @@ public class EchoApplication {
         else if (message.startsWith("spotify")) {
             Messages.addAll(getSpotify(StringUtils.removeStart(message, "spotify ")));
         }
+        else if (message.startsWith("speech")) {
+            Messages.addAll(getSpotify(StringUtils.removeStart(message, "speech ")));
+        }
         else if (message.equals("Botbye")) {
             if (source instanceof GroupSource) {
                 lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
