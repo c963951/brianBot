@@ -1,5 +1,6 @@
 package com.example.bot.spring.echo.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -91,20 +92,8 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws LineUnavailableException, UnsupportedAudioFileException {
-        try {
-            word = java.net.URLEncoder.encode(word, "UTF-8");
-            URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word);
-            HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
-            urlConn.addRequestProperty("User-Agent", "Mozilla/4.76");
-            InputStream in = urlConn.getInputStream();
-            return new AudioMessage(
-                    "https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word,
-                    in.read() / 10);
-        }
-        catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
+        File mp3 = new File("/tts/" + word);
+        return new AudioMessage("/tts/" + word, (int)mp3.length());
     }
 
     public TemplateMessage getCarousel(double lat, double lng) {
