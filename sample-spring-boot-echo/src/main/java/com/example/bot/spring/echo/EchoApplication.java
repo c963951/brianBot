@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -100,7 +102,7 @@ public class EchoApplication {
             Messages.addAll(getSpotify(StringUtils.removeStart(message, "spotify ")));
         }
         else if (message.startsWith("speech")) {
-            Messages.addAll(getSpotify(StringUtils.removeStart(message, "speech ")));
+            Messages.add(getSpeech(StringUtils.removeStart(message, "speech ")));
         }
         else if (message.equals("Botbye")) {
             if (source instanceof GroupSource) {
@@ -143,6 +145,10 @@ public class EchoApplication {
 
     public AudioMessage TTs(String message) throws IOException {
         return rplys.getTTs(message);
+    }
+    
+    public AudioMessage getSpeech(String message) throws IOException, UnsupportedAudioFileException {
+        return rplys.getCloudTTs(message);
     }
 
     public TextMessage Horoscope(String message) {
