@@ -92,8 +92,8 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws LineUnavailableException, UnsupportedAudioFileException {
-        File mp3 = new File("/tts/" + word);
-        return new AudioMessage("/tts/" + word, (int)mp3.length());
+        File mp3 = new File("https://c963951.herokuapp.com/tts/" + word);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)mp3.length());
     }
 
     public TemplateMessage getCarousel(double lat, double lng) {
