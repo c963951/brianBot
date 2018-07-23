@@ -3,6 +3,7 @@ package com.example.bot.spring.echo.service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ public class ReplyService {
         File mp3 = new File("test.mp3");
         URL url1 = new URL("https://c963951.herokuapp.com/tts/" + word);
         FileUtils.copyURLToFile(url1, mp3);
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + word, (int)mp3.length() / 1000);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word, "UTF-8"), (int)mp3.length() / 1000);
     }
 
     public AudioMessage getCloudTTs(String word) throws IOException, UnsupportedAudioFileException {
@@ -107,7 +108,8 @@ public class ReplyService {
         AudioFormat format = ain.getFormat();
         long frames = ain.getFrameLength();
         double during = (frames + 0.0) / format.getFrameRate();
-        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + word, (int)Math.ceil(during));
+        log.info("during=========="+during);
+        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"), (int)Math.ceil(during));
 
     }
 

@@ -65,7 +65,7 @@ public class FileDownloadController {
         tts.getAudioConfig().setAudioEncoding("LINEAR16");
         tts.getAudioConfig().setPitch("0.00");
         tts.getAudioConfig().setSpeakingRate("0.75");
-        tts.getInput().setText(URLDecoder.decode(word,"utf-8"));
+        tts.getInput().setText(word);
         tts.getVoice().setLanguageCode("en-US");
         tts.getVoice().setName("en-AU-Standard-C");
         String json = gson.toJson(tts);
