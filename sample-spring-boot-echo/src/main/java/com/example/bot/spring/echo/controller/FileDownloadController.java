@@ -40,6 +40,7 @@ public class FileDownloadController {
         urlConn.addRequestProperty("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
         InputStream inn = urlConn.getInputStream();
+        int cl = urlConn.getContentLength();
         response.reset();
         response.setContentType("audio/mpeg");
         response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
@@ -47,7 +48,10 @@ public class FileDownloadController {
         response.setHeader("x-xss-protection", "1; mode=block");
         response.setHeader("status", "200");
         response.setHeader("server", "HTTP");
+        response.setContentLength(cl);
         FileCopyUtils.copy(inn, response.getOutputStream());
+        inn.close();
+        return;
     }
 
     @GetMapping(value = "/googleTTs/{word}")
@@ -85,8 +89,11 @@ public class FileDownloadController {
             response.setHeader("x-xss-protection", "1; mode=block");
             response.setHeader("status", "200");
             response.setHeader("server", "HTTP");
+            response.setContentLength((int)resp.getEntity().getContentLength());
             FileCopyUtils.copy(oInstream, response.getOutputStream());
+            oInstream.close();
         }
         catch (IOException ex) {}
+        return;
     }
 }
