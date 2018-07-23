@@ -1,6 +1,7 @@
 package com.example.bot.spring.echo;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -144,11 +145,11 @@ public class EchoApplication {
     }
 
     public AudioMessage TTs(String message) throws IOException {
-        return rplys.getTTs(message);
+        return rplys.getTTs(URLEncoder.encode(message, "UTF-8"));
     }
     
     public AudioMessage getSpeech(String message) throws IOException, UnsupportedAudioFileException {
-        return rplys.getCloudTTs(message);
+        return rplys.getCloudTTs(URLEncoder.encode(message, "UTF-8"));
     }
 
     public TextMessage Horoscope(String message) {

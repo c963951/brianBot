@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Base64;
 
@@ -37,7 +38,7 @@ public class FileDownloadController {
     public @ResponseBody void download(HttpServletResponse response, @PathVariable("word") String word)
             throws IOException {
         URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q="
-                + URLEncoder.encode(word, "UTF-8"));
+                + word);
         HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
         urlConn.addRequestProperty("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
@@ -64,7 +65,7 @@ public class FileDownloadController {
         tts.getAudioConfig().setAudioEncoding("LINEAR16");
         tts.getAudioConfig().setPitch("0.00");
         tts.getAudioConfig().setSpeakingRate("0.75");
-        tts.getInput().setText(word);
+        tts.getInput().setText(URLDecoder.decode(word,"utf-8"));
         tts.getVoice().setLanguageCode("en-US");
         tts.getVoice().setName("en-AU-Standard-C");
         String json = gson.toJson(tts);
