@@ -102,7 +102,7 @@ public class ReplyService {
 
     public AudioMessage getCloudTTs(String word) throws IOException, UnsupportedAudioFileException {
         File mp3 = new File("test.mp3");
-        URL url1 = new URL("https://c963951.herokuapp.com/googleTTs/" + word);
+        URL url1 = new URL("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"));
         FileUtils.copyURLToFile(url1, mp3);
         AudioInputStream ain = AudioSystem.getAudioInputStream(mp3);
         AudioFormat format = ain.getFormat();
