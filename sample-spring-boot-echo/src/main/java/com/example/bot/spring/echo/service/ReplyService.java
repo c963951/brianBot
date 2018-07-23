@@ -86,11 +86,12 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word, "UTF-8"), 100);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 100);
     }
 
     public AudioMessage getCloudTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"), 100);
+        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8"),
+                100);
     }
 
     public class AudioContent {
