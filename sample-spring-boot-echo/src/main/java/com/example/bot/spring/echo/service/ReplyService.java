@@ -1,8 +1,6 @@
 package com.example.bot.spring.echo.service;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,12 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
@@ -94,20 +86,11 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word, "UTF-8"), 99999);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word, "UTF-8"), 100);
     }
 
-    public AudioMessage getCloudTTs(String word) throws IOException, UnsupportedAudioFileException {
-        File mp3 = new File("test.mp3");
-        URL url1 = new URL("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"));
-        FileUtils.copyURLToFile(url1, mp3);
-        AudioInputStream ain = AudioSystem.getAudioInputStream(mp3);
-        AudioFormat format = ain.getFormat();
-        long frames = ain.getFrameLength();
-        double during = (frames + 0.0) / format.getFrameRate();
-        log.info("during=========="+during);
-        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"), (int)Math.ceil(during));
-
+    public AudioMessage getCloudTTs(String word) throws IOException {
+        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word, "UTF-8"), 100);
     }
 
     public class AudioContent {
