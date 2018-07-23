@@ -62,7 +62,7 @@ public class FileDownloadController {
         tts.setAudioConfig(new AudioConfig());
         tts.setInput(new Input());
         tts.setVoice(new Voice());
-        tts.getAudioConfig().setAudioEncoding("LINEAR16");
+        tts.getAudioConfig().setAudioEncoding("MP3");
         tts.getAudioConfig().setPitch("0.00");
         tts.getAudioConfig().setSpeakingRate("0.75");
         tts.getInput().setText(URLDecoder.decode(word, "UTF-8"));
@@ -74,8 +74,6 @@ public class FileDownloadController {
                     "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ");
             StringEntity params = new StringEntity(json);
             request.addHeader("content-type", "application/json; charset=utf-8");
-            request.addHeader("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
             request.setEntity(params);
             HttpResponse resp = httpClient.execute(request);
             String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
