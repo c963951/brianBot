@@ -70,6 +70,8 @@ public class FileDownloadController {
                     "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ");
             StringEntity params = new StringEntity(json);
             request.addHeader("content-type", "application/json; charset=utf-8");
+            request.addHeader("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
             request.setEntity(params);
             HttpResponse resp = httpClient.execute(request);
             String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
