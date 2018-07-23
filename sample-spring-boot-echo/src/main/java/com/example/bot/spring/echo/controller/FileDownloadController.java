@@ -6,11 +6,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,8 +35,7 @@ public class FileDownloadController {
     @GetMapping(value = "/tts/{word}")
     public @ResponseBody void download(HttpServletResponse response, @PathVariable("word") String word)
             throws IOException {
-        URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q="
-                + word);
+        URL url = new URL("https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-tw&client=tw-ob&q=" + word);
         HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
         urlConn.addRequestProperty("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
@@ -46,7 +43,7 @@ public class FileDownloadController {
         response.reset();
         response.setContentType("audio/mpeg");
         response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
-        response.setHeader("x-content-type-options","nosniff");
+        response.setHeader("x-content-type-options", "nosniff");
         response.setHeader("x-xss-protection", "1; mode=block");
         response.setHeader("status", "200");
         response.setHeader("server", "HTTP");
@@ -55,7 +52,7 @@ public class FileDownloadController {
 
     @GetMapping(value = "/googleTTs/{word}")
     public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("word") String word)
-            throws IOException, UnsupportedAudioFileException {
+            throws IOException {
         Gson gson = new Gson();
         TextToSpeech tts = new TextToSpeech();
         tts.setAudioConfig(new AudioConfig());
@@ -82,7 +79,7 @@ public class FileDownloadController {
             response.reset();
             response.setContentType("audio/mpeg");
             response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
-            response.setHeader("x-content-type-options","nosniff");
+            response.setHeader("x-content-type-options", "nosniff");
             response.setHeader("x-xss-protection", "1; mode=block");
             response.setHeader("status", "200");
             response.setHeader("server", "HTTP");
