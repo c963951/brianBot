@@ -48,7 +48,6 @@ public class FileDownloadController {
         response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
         response.setHeader("x-content-type-options","nosniff");
         response.setHeader("x-xss-protection", "1; mode=block");
-        response.setHeader("cache-control", "private, max-age=86400");
         response.setHeader("status", "200");
         response.setHeader("server", "HTTP");
         FileCopyUtils.copy(inn, response.getOutputStream());
@@ -85,7 +84,6 @@ public class FileDownloadController {
             response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
             response.setHeader("x-content-type-options","nosniff");
             response.setHeader("x-xss-protection", "1; mode=block");
-            response.setHeader("cache-control", "private, max-age=86400");
             response.setHeader("status", "200");
             response.setHeader("server", "HTTP");
             FileCopyUtils.copy(oInstream, response.getOutputStream());
