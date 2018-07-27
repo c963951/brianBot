@@ -86,12 +86,12 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 100);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 10000);
     }
 
     public AudioMessage getCloudTTs(String word) throws IOException {
         return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8"),
-                100);
+                10000);
     }
 
     public class AudioContent {
@@ -342,14 +342,10 @@ public class ReplyService {
             ResourceId rId = singleVideo.getId();
             Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
             if (rId.getKind().equals("youtube#video")) {
-//                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
-//                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
-//                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
-                TextMessage tm = new TextMessage(
-                        "<meta property=\"og:image\" content=\"https://www.youtube.com/watch?v=" + rId.getVideoId()
-                                + "\"> <meta property=\"og:title\" content=\"" + singleVideo.getSnippet().getTitle()
-                                + "\">");
-                messages.add(tm);
+                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
+                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
+                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
+                messages.add(new TextMessage("https://user35832.pics.ee/9GR6L"));
             }
         }
         return messages;
