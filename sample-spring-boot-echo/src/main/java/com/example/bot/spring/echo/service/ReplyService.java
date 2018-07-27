@@ -345,7 +345,6 @@ public class ReplyService {
                 messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
                 messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
                         + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
-                messages.add(new TextMessage("https://user35832.pics.ee/9GR6L"));
             }
         }
         return messages;
