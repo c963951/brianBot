@@ -75,7 +75,7 @@ public class EchoApplication {
             pushId = ((RoomSource)source).getRoomId();
         }
 
-        String message = ((TextMessageContent)event.getMessage()).getText();
+        String message = event.getMessage().getText();
         String keyworad = message.substring(1);
         if (message.startsWith("%")) {
             Messages.add(PTT(keyworad));
