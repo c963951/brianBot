@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Ordering;
 
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -56,17 +56,17 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Dispatcher for LINE Message Event Handling.
  *
- * Dispatch target method is collected by Spring's bean.
+ * <p>Dispatch target method is collected by Spring's bean.
  *
- * Event endpoint is configurable by {@code line.bot.callback-path} parameter.
+ * <p>Event endpoint is configurable by {@code line.bot.callback-path} parameter.
  *
  * <h2>Event Handler method rule.</h2>
  *
- * The class and method with following rules are collected by LINE Messaging Event handler.
+ * <p>The class and method with following rules are collected by LINE Messaging Event handler.
  *
  * <ul>
- *     <li>Class annotated with {@link LineMessageHandler}</li>
- *     <li>Method annotated with {@link EventMapping}.</li>
+ * <li>Class annotated with {@link LineMessageHandler}</li>
+ * <li>Method annotated with {@link EventMapping}.</li>
  * </ul>
  */
 @Slf4j
@@ -75,8 +75,8 @@ import lombok.extern.slf4j.Slf4j;
 @Import(ReplyByReturnValueConsumer.Factory.class)
 @ConditionalOnProperty(name = "line.bot.handler.enabled", havingValue = "true", matchIfMissing = true)
 public class LineMessageHandlerSupport {
-    private static final Ordering<HandlerMethod> HANDLER_METHOD_PRIORITY_COMPARATOR =
-            Ordering.natural().onResultOf(HandlerMethod::getPriority).reverse();
+    private static final Comparator<HandlerMethod> HANDLER_METHOD_PRIORITY_COMPARATOR =
+            Comparator.comparing(HandlerMethod::getPriority).reversed();
     private final ReplyByReturnValueConsumer.Factory returnValueConsumerFactory;
     private final ConfigurableApplicationContext applicationContext;
 
@@ -231,9 +231,9 @@ public class LineMessageHandlerSupport {
         @Override
         public boolean test(final Event event) {
             return supportEvent.isAssignableFrom(event.getClass())
-                   && (messageContentType == null ||
-                       event instanceof MessageEvent &&
-                       filterByType(messageContentType, ((MessageEvent<?>) event).getMessage()));
+                   && (messageContentType == null
+                       || event instanceof MessageEvent
+                          && filterByType(messageContentType, ((MessageEvent<?>) event).getMessage()));
         }
 
         private static boolean filterByType(final Class<?> clazz, final Object content) {

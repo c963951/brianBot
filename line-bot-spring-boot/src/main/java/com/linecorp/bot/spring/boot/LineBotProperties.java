@@ -24,7 +24,8 @@ import javax.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import com.linecorp.bot.client.LineMessagingServiceBuilder;
+import com.linecorp.bot.client.LineClientConstants;
+import com.linecorp.bot.spring.boot.BotPropertiesValidator.ValidBotProperties;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
@@ -32,17 +33,25 @@ import lombok.Data;
 
 @Data
 @Validated
+@ValidBotProperties
 @ConfigurationProperties(prefix = "line.bot")
 public class LineBotProperties {
+    /**
+     * Channel token supply mode.
+     *
+     * @see ChannelTokenSupplyMode
+     */
+    @NotNull
+    private ChannelTokenSupplyMode channelTokenSupplyMode = ChannelTokenSupplyMode.FIXED;
+
     /**
      * Channel acccess token.
      */
     @Valid
-    @NotNull
-    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89/1O/w1cDnyilFU=";
+    private String channelToken;
 
     /**
-     * Channel secret
+     * Channel secret.
      */
     @Valid
     @NotNull
@@ -50,28 +59,28 @@ public class LineBotProperties {
 
     @Valid
     @NotNull
-    private String apiEndPoint = "https://api.line.me/";
+    private String apiEndPoint = LineClientConstants.DEFAULT_API_END_POINT;
 
     /**
-     * Connection timeout in milliseconds
+     * Connection timeout in milliseconds.
      */
     @Valid
     @NotNull
-    private long connectTimeout = LineMessagingServiceBuilder.DEFAULT_CONNECT_TIMEOUT;
+    private long connectTimeout = LineClientConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
 
     /**
-     * Read timeout in milliseconds
+     * Read timeout in milliseconds.
      */
     @Valid
     @NotNull
-    private long readTimeout = LineMessagingServiceBuilder.DEFAULT_READ_TIMEOUT;
+    private long readTimeout = LineClientConstants.DEFAULT_READ_TIMEOUT_MILLIS;
 
     /**
-     * Write timeout in milliseconds
+     * Write timeout in milliseconds.
      */
     @Valid
     @NotNull
-    private long writeTimeout = LineMessagingServiceBuilder.DEFAULT_WRITE_TIMEOUT;
+    private long writeTimeout = LineClientConstants.DEFAULT_WRITE_TIMEOUT_MILLIS;
 
     /**
      * Configuration for {@link LineMessageHandler} and {@link EventMapping}.
@@ -83,8 +92,9 @@ public class LineBotProperties {
     @Data
     public static class Handler {
         /**
-         * Flag to enable/disable {@link LineMessageHandler} and {@link EventMapping}.
-         *
+         * Flag to enable/disable {@link LineMessageHandler} and
+         * {@link EventMapping}.
+         * <p>
          * Default: {@code true}
          */
         boolean enabled = true;
@@ -95,5 +105,21 @@ public class LineBotProperties {
         @NotNull
         URI path = URI.create("/callback");
         URI push = URI.create("/v2/bot/message/push");
+    }
+
+    public enum ChannelTokenSupplyMode {
+        /**
+         * Use fixed channel token for public API user.
+         */
+        FIXED,
+
+        /**
+         * Supply channel token via channel token supplier for specific business
+         * partners.
+         *
+         * @see <a href="https://devdocs.line.me/#issue-channel-access-token"
+         *      >//devdocs.line.me/#issue-channel-access-token</a>
+         */
+        SUPPLIER,
     }
 }

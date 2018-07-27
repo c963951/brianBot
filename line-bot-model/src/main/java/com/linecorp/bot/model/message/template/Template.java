@@ -21,17 +21,18 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 /**
- * Interface for Template message
+ * Interface for Template message.
  */
 @JsonSubTypes({
         @JsonSubTypes.Type(ButtonsTemplate.class),
         @JsonSubTypes.Type(CarouselTemplate.class),
+        @JsonSubTypes.Type(ConfirmTemplate.class),
+        @JsonSubTypes.Type(ImageCarouselTemplate.class),
 })
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = As.PROPERTY,
-        property = "type",
-        visible = true
+        property = "type"
 )
 public interface Template {
 }

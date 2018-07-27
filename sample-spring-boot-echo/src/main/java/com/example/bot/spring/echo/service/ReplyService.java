@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -86,12 +87,12 @@ public class ReplyService {
     }
 
     public AudioMessage getTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 10000);
+        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 100);
     }
 
     public AudioMessage getCloudTTs(String word) throws IOException {
         return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8"),
-                10000);
+                100);
     }
 
     public class AudioContent {
@@ -123,7 +124,7 @@ public class ReplyService {
         return templateMessage;
     }
 
-    public TemplateMessage getGooglePlaces(String data) {
+    public TemplateMessage getGooglePlaces(String data) throws JSONException {
         List<String> datas = Arrays.asList(StringUtils.split(data, ","));
         if (datas.size() != 3) return null;
         double lat = Double.parseDouble(datas.get(0));
@@ -350,7 +351,7 @@ public class ReplyService {
         return messages;
     }
 
-    public TemplateMessage getRestaurant(double lat, double lng) {
+    public TemplateMessage getRestaurant(double lat, double lng) throws JSONException {
         String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlaces(lat, lng, 1000, Param.name("type").value("restaurant"),

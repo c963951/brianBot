@@ -146,7 +146,7 @@ public class EchoApplication {
     public AudioMessage TTs(String message) throws IOException {
         return rplys.getTTs(message);
     }
-    
+
     public AudioMessage getSpeech(String message) throws IOException, UnsupportedAudioFileException {
         return rplys.getCloudTTs(message);
     }
