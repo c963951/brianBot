@@ -342,9 +342,14 @@ public class ReplyService {
             ResourceId rId = singleVideo.getId();
             Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
             if (rId.getKind().equals("youtube#video")) {
-                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
-                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
-                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
+//                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
+//                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
+//                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
+                TextMessage tm = new TextMessage(
+                        "<meta property=\"og:image\" content=\"https://www.youtube.com/watch?v=" + rId.getVideoId()
+                                + "\"> <meta property=\"og:title\" content=\"" + singleVideo.getSnippet().getTitle()
+                                + "\">");
+                messages.add(tm);
             }
         }
         return messages;
