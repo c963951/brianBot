@@ -48,7 +48,9 @@ public class LineBotProperties {
      * Channel acccess token.
      */
     @Valid
-    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
+    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5"
+            + "qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ"
+            + "4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
 
     /**
      * Channel secret.
@@ -92,9 +94,10 @@ public class LineBotProperties {
     @Data
     public static class Handler {
         /**
-         * Flag to enable/disable {@link LineMessageHandler} and {@link EventMapping}.
-         *
-         * <p>Default: {@code true}
+         * Flag to enable/disable {@link LineMessageHandler} and
+         * {@link EventMapping}.
+         * <p>
+         * Default: {@code true}
          */
         boolean enabled = true;
 
@@ -112,10 +115,11 @@ public class LineBotProperties {
         FIXED,
 
         /**
-         * Supply channel token via channel token supplier for specific business partners.
+         * Supply channel token via channel token supplier for specific business
+         * partners.
          *
          * @see <a href="https://devdocs.line.me/#issue-channel-access-token"
-         *         >//devdocs.line.me/#issue-channel-access-token</a>
+         *      >//devdocs.line.me/#issue-channel-access-token</a>
          */
         SUPPLIER,
     }
