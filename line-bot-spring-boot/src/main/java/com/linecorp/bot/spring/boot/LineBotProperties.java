@@ -94,10 +94,9 @@ public class LineBotProperties {
     @Data
     public static class Handler {
         /**
-         * Flag to enable/disable {@link LineMessageHandler} and
-         * {@link EventMapping}.
-         * <p>
-         * Default: {@code true}
+         * Flag to enable/disable {@link LineMessageHandler} and {@link EventMapping}.
+         *
+         * <p>Default: {@code true}
          */
         boolean enabled = true;
 
@@ -115,11 +114,10 @@ public class LineBotProperties {
         FIXED,
 
         /**
-         * Supply channel token via channel token supplier for specific business
-         * partners.
+         * Supply channel token via channel token supplier for specific business partners.
          *
          * @see <a href="https://devdocs.line.me/#issue-channel-access-token"
-         *      >//devdocs.line.me/#issue-channel-access-token</a>
+         *         >//devdocs.line.me/#issue-channel-access-token</a>
          */
         SUPPLIER,
     }
