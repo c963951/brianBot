@@ -1,23 +1,24 @@
-package com.example.bot.spring.echo.texttospeech.pojo;
+
+package com.example.bot.spring.echo.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Voice {
+public class Source {
 
-    @SerializedName("languageCode")
+    @SerializedName("id")
     @Expose
-    private String languageCode;
+    private Object id;
     @SerializedName("name")
     @Expose
     private String name;
 
-    public String getLanguageCode() {
-        return languageCode;
+    public Object getId() {
+        return id;
     }
 
-    public void setLanguageCode(String languageCode) {
-        this.languageCode = languageCode;
+    public void setId(Object id) {
+        this.id = id;
     }
 
     public String getName() {

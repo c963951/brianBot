@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.bot.spring.echo.pojo.AudioConfig;
+import com.example.bot.spring.echo.pojo.Input;
+import com.example.bot.spring.echo.pojo.TextToSpeech;
+import com.example.bot.spring.echo.pojo.Voice;
 import com.example.bot.spring.echo.service.ReplyService.AudioContent;
-import com.example.bot.spring.echo.texttospeech.pojo.AudioConfig;
-import com.example.bot.spring.echo.texttospeech.pojo.Input;
-import com.example.bot.spring.echo.texttospeech.pojo.TextToSpeech;
-import com.example.bot.spring.echo.texttospeech.pojo.Voice;
 import com.google.gson.Gson;
 
 @Controller

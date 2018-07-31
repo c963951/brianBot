@@ -1,6 +1,8 @@
 package com.example.bot.spring.echo.service;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -19,6 +22,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
+import com.example.bot.spring.echo.pojo.Article;
+import com.example.bot.spring.echo.pojo.GoogleNews;
 import com.github.abola.crawler.CrawlerPack;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -29,6 +34,7 @@ import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
+import com.google.gson.Gson;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.AudioMessage;
@@ -62,6 +68,18 @@ public class ReplyService {
         Elements els = CrawlerPack.start().htmlToJsoupDoc(parseHtml).select("table tr");
         els.stream().forEach(x -> result.add(x.text() + "\r\n"));
         return String.join("", result);
+    }
+
+    public String getNewsMessage() throws IOException {
+        StringBuffer sb = new StringBuffer();
+        URL url = new URL("https://newsapi.org/v2/top-headlines?country=tw&apiKey=3c9ded024fd34fb8b7966f149ac0a27b");
+        InputStreamReader reader = new InputStreamReader(url.openStream());
+        GoogleNews news = new Gson().fromJson(reader, GoogleNews.class);
+        List<Article> articles = news.getArticles();
+        AtomicInteger index = new AtomicInteger();
+        articles.stream().filter(n -> index.incrementAndGet() <= 5)
+                .forEach(x -> sb.append(x.getTitle() + "\r\n" + x.getUrl() + "\r\n"));
+        return sb.toString();
     }
 
     public String getHoroscope(String sign) {
@@ -375,5 +393,4 @@ public class ReplyService {
         TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
         return templateMessage;
     }
-
 }

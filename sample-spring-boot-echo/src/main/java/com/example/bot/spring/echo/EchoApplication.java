@@ -98,6 +98,9 @@ public class EchoApplication {
         else if (message.startsWith("-gas")) {
             Messages.add(getGas());
         }
+        else if (message.startsWith("news")) {
+            Messages.add(getNews());
+        }
         else if (message.startsWith("spotify")) {
             Messages.addAll(getSpotify(StringUtils.removeStart(message, "spotify ")));
         }
@@ -169,6 +172,10 @@ public class EchoApplication {
 
     public TextMessage getGas() {
         return new TextMessage(rplys.getGasMessage());
+    }
+
+    public TextMessage getNews() throws IOException {
+        return new TextMessage(rplys.getNewsMessage());
     }
 
     public List<Message> getSpotify(String message) throws Exception {

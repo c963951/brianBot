@@ -1,4 +1,4 @@
-package com.example.bot.spring.echo.texttospeech.pojo;
+package com.example.bot.spring.echo.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
