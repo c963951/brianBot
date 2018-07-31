@@ -129,7 +129,7 @@ subprojects {
         version = '1.18.0'
     }
 
-    if (project.name.startsWith('sample-')) {
+    if (project.name.startsWith('1sample-')) {
         task delombok(type: io.franzbecker.gradle.lombok.task.DelombokTask, dependsOn: compileJava) {
             ext.outputDir = file("$buildDir/delombok")
             outputs.dir(outputDir)
