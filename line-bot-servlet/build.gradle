@@ -19,6 +19,6 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.google.guava:guava'
 
-    optional 'javax.servlet:javax.servlet-api'
+    provided group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
     optional 'org.slf4j:slf4j-api'
 }
