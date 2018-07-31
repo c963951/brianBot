@@ -232,7 +232,10 @@ public class ReplyService {
         map.put("中國", "CNY");
         map.put("泰國", "THB");
         map.put("新加坡", "SGD");
-        String countryRate = map.containsKey(country) ? (String)map.get(country) : country;
+        String countryRate = country;
+        if (map.containsKey(country)) {
+            countryRate = map.get(country);
+        }
 
         String ratePage = "http://www.taiwanrate.org/exchange_rate.php?c=" + countryRate;
         List<String> result = new ArrayList<>();
