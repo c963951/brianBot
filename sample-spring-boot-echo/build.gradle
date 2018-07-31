@@ -18,20 +18,17 @@ apply plugin: 'org.springframework.boot'
 
 dependencies {
     compile project(':line-bot-spring-boot')
+    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
     compile 'se.walkercrou:google-places-api-java:2.1.7'
     compile 'org.projectlombok:lombok:1.18.0'
     compile 'com.github.abola:crawler:1.1'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
-    compile group: 'com.google.apis', name: 'google-api-services-speech', version: 'v1-rev52-1.23.0'
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
-    compile group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.36.0'
-    compile('se.michaelthelin.spotify:spotify-web-api-java:2.0.3') {
+    compile('se.michaelthelin.spotify:spotify-web-api-java:2.0.4') {
         exclude group: "commons-beanutils", module: "commons-beanutils"
 
     }
-    compile group: 'com.google.apis', name: 'google-api-services-youtube', version: 'v3-rev204-1.23.0'
     compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.6.0'
-    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
 }

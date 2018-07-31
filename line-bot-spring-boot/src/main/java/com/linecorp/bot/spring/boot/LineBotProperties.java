@@ -48,14 +48,14 @@ public class LineBotProperties {
      * Channel acccess token.
      */
     @Valid
-    private String channelToken;
+    private String channelToken = "OD6ub5Qyystuid9ouEmNPBRLFmQTyeAbEX9ngG3WB9Scma4cDIM5qanrZ5dmJgnoKPxGwMQlsyDC8jm3p7LMLinTKRJDuMBrJ4ACM0egQIppZBoCGtCYA0rgBp8PSb8EkJppGlP0BhaWFVaeiyQddwdB04t89";
 
     /**
      * Channel secret.
      */
     @Valid
     @NotNull
-    private String channelSecret;
+    private String channelSecret = "8f928619348271540a75f7bd171bd4a6";
 
     @Valid
     @NotNull

@@ -15,6 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -23,17 +28,11 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import com.example.bot.spring.echo.pojo.Article;
+import com.example.bot.spring.echo.pojo.Default;
 import com.example.bot.spring.echo.pojo.GoogleNews;
+import com.example.bot.spring.echo.pojo.Item;
+import com.example.bot.spring.echo.pojo.Youtube;
 import com.github.abola.crawler.CrawlerPack;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ResourceId;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
 import com.google.gson.Gson;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
@@ -332,39 +331,31 @@ public class ReplyService {
 
     public List<Message> getYoutube(String queryTerm) throws IOException {
         log.info("=======youtube start=====");
-        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(),
-                new HttpRequestInitializer() {
-                    public void initialize(HttpRequest request) throws IOException {}
-                }).setApplicationName("youtube-cmdline-search-sample").build();
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+            HttpGet request = new HttpGet(
+                    "https://www.googleapis.com/youtube/v3/search?part=id,snippet&regionCode=TW&type=video&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
+                            + URLEncoder.encode(queryTerm, "UTF-8"));
+            request.addHeader("content-type", "application/json; charset=utf-8");
+            HttpResponse resp = httpClient.execute(request);
+            String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
+            Youtube youtube = new Gson().fromJson(result, Youtube.class);
+            List<Item> items = youtube.getItems();
+            return prettyPrint(items);
 
-        YouTube.Search.List search = youtube.search().list("id,snippet");
-
-        String apiKey = "AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk";
-        search.setKey(apiKey);
-        search.setQ(queryTerm);
-        search.setType("video");
-        search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
-        search.setMaxResults(1L);
-        search.setRegionCode("TW");
-        SearchListResponse searchResponse = search.execute();
-        List<SearchResult> searchResultList = searchResponse.getItems();
-
-        if (!searchResultList.isEmpty()) {
-            return prettyPrint(searchResultList);
         }
+        catch (IOException ex) {}
         return null;
     }
 
-    private static List<Message> prettyPrint(List<SearchResult> listSearchResults) {
+    private static List<Message> prettyPrint(List<Item> listSearchResults) {
         List<Message> messages = new ArrayList<Message>();
-        for (SearchResult singleVideo : listSearchResults) {
-            ResourceId rId = singleVideo.getId();
-            Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-            if (rId.getKind().equals("youtube#video")) {
-                messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
-                messages.add(new TextMessage(singleVideo.getSnippet().getTitle() + "\r\n"
-                        + "https://www.youtube.com/watch?v=" + rId.getVideoId()));
-            }
+        for (Item singleVideo : listSearchResults) {
+            String rId = singleVideo.getId().getVideoId();
+            Default thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
+            messages.add(new ImageMessage(thumbnail.getUrl(), thumbnail.getUrl()));
+            messages.add(new TextMessage(
+                    singleVideo.getSnippet().getTitle() + "\r\n" + "https://www.youtube.com/watch?v=" + rId));
+            break;
         }
         return messages;
     }
