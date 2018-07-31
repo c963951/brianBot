@@ -101,6 +101,9 @@ public class EchoApplication {
         else if (message.startsWith("news")) {
             Messages.add(getNews());
         }
+        else if (message.startsWith("google")) {
+            Messages.add(getSearch(StringUtils.removeStart(message, "google ")));
+        }
         else if (message.startsWith("spotify")) {
             Messages.addAll(getSpotify(StringUtils.removeStart(message, "spotify ")));
         }
@@ -176,6 +179,10 @@ public class EchoApplication {
 
     public TextMessage getNews() throws IOException {
         return new TextMessage(rplys.getNewsMessage());
+    }
+    
+    public TextMessage getSearch(String message) throws IOException {
+        return new TextMessage(rplys.getSearchMessage(message));
     }
 
     public List<Message> getSpotify(String message) throws Exception {

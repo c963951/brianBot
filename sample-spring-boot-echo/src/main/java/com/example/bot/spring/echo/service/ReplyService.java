@@ -32,6 +32,7 @@ import com.example.bot.spring.echo.pojo.Default;
 import com.example.bot.spring.echo.pojo.GoogleNews;
 import com.example.bot.spring.echo.pojo.Item;
 import com.example.bot.spring.echo.pojo.Youtube;
+import com.example.bot.spring.echo.pojo.serch.GoogleSearch;
 import com.github.abola.crawler.CrawlerPack;
 import com.google.gson.Gson;
 import com.linecorp.bot.model.action.PostbackAction;
@@ -332,8 +333,29 @@ public class ReplyService {
         return result.toString();
     }
 
-    public List<Message> getYoutube(String queryTerm) throws IOException {
+    public String getSearchMessage(String queryTerm) throws IOException {
         log.info("=======youtube start=====");
+        StringBuffer sb = new StringBuffer();
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+            HttpGet request = new HttpGet(
+                    "https://www.googleapis.com/customsearch/v1?key=AIzaSyA2XHK-Bv2HTFX9HGzXevCSt91yAttmgX8&cx=016196646623470081627:ceqepq_94ri&fields=items(title,link)&lr=lang_zh-TW&q="
+                            + URLEncoder.encode(queryTerm, "UTF-8"));
+            request.addHeader("content-type", "application/json; charset=utf-8");
+            HttpResponse resp = httpClient.execute(request);
+            String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
+            GoogleSearch search = new Gson().fromJson(result, GoogleSearch.class);
+            List<com.example.bot.spring.echo.pojo.serch.Item> items = search.getItems();
+
+            AtomicInteger index = new AtomicInteger();
+            items.stream().filter(n -> index.incrementAndGet() <= 5)
+                    .forEach(x -> sb.append(x.getTitle() + "\r\n" + x.getLink() + "\r\n"));
+        }
+        catch (IOException ex) {}
+        return sb.toString();
+    }
+
+    public List<Message> getYoutube(String queryTerm) throws IOException {
+        log.info("=======Search start=====");
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet request = new HttpGet(
                     "https://www.googleapis.com/youtube/v3/search?part=id,snippet&regionCode=TW&type=video&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
