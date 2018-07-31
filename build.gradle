@@ -162,10 +162,6 @@ subprojects {
         }
     }
 
-    checkstyle {
-        configProperties = [projectDir: rootProject.projectDir]
-    }
-
     compileJava {
         options.compilerArgs << '-Xlint:all' << '-Xlint:deprecation' << '-Werror' << '-Xlint:-processing' << '-parameters'
     }
