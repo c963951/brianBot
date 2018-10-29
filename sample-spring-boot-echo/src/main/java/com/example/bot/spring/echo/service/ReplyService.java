@@ -148,7 +148,7 @@ public class ReplyService {
         double lat = Double.parseDouble(datas.get(0));
         double lng = Double.parseDouble(datas.get(1));
         String place = datas.get(2);
-        String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
+        String apiKey = "AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ";
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlacesRankedByDistance(lat, lng, Param.name("type").value(place),
                 Param.name("language").value("zh-TW"));
@@ -386,7 +386,7 @@ public class ReplyService {
     }
 
     public TemplateMessage getRestaurant(double lat, double lng) throws JSONException {
-        String apiKey = "AIzaSyB6t-XO4BEyDh1jBzHmeZn5hVB0WQkZLe8";
+        String apiKey = "AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ";
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlaces(lat, lng, 1000, Param.name("type").value("restaurant"),
                 Param.name("language").value("zh-TW"));
