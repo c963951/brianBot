@@ -17,7 +17,7 @@
 // ./gradlew clean && ./gradlew uploadArchives -Prelease
 
 buildscript {
-    ext.kotlin_version = '1.2.51'
+    ext.kotlin_version = '1.2.70'
 
     repositories {
         mavenCentral()
@@ -25,19 +25,20 @@ buildscript {
         maven { url 'https://repo.spring.io/plugins-release' }
     }
     dependencies {
-        classpath 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17'
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
-        classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
-        classpath 'io.franzbecker:gradle-lombok:1.6'
+        classpath 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
+        classpath 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.15.RELEASE'
+        classpath 'io.franzbecker:gradle-lombok:1.14'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17'
     }
 }
 
 apply plugin: 'idea'
 
 group = 'com.linecorp.bot'
-version = '1.21.0'
+version = '2.2.0'
 
 //set build variables based on build type (release, continuous integration, development)
 def isDevBuild
@@ -54,11 +55,13 @@ if (hasProperty('release')) {
     version += '-SNAPSHOT'
 }
 
-subprojects {
+allprojects {
     repositories {
         mavenCentral();
     }
+}
 
+subprojects {
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'
     apply plugin: 'propdeps-idea'
@@ -79,12 +82,12 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 
-    ext['guava.version'] = '25.1-jre'
-    ext['okhttp3.version'] = '3.10.0'
+    ext['guava.version'] = '26.0-jre'
+    ext['okhttp3.version'] = '3.11.0'
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Brussels-SR10'
+            mavenBom 'io.spring.platform:platform-bom:Brussels-SR13'
         }
 
         dependencies {
@@ -93,16 +96,13 @@ subprojects {
             dependency 'com.squareup.okhttp3:mockwebserver:' + ext['okhttp3.version']
             dependency 'com.squareup.retrofit2:converter-jackson:2.4.0'
             dependency 'com.squareup.retrofit2:retrofit:2.4.0'
-            dependency 'org.assertj:assertj-core:3.10.0'
-            dependency 'org.projectlombok:lombok:1.18.0'
+            dependency 'org.assertj:assertj-core:3.11.0'
+            dependency 'org.projectlombok:lombok:1.18.2'
         }
     }
 
     dependencies {
-        annotationProcessor 'org.projectlombok:lombok'
-        testAnnotationProcessor 'org.projectlombok:lombok'
-
-        compileOnly "org.springframework.boot:spring-boot-configuration-processor"
+        compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
         // http://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html#configuration-metadata-annotation-processor
 
         testCompile 'com.google.guava:guava'
@@ -116,6 +116,32 @@ subprojects {
     compileJava.dependsOn(processResources)
     // http://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html#configuration-metadata-annotation-processor
 
+    def springManagedModules = [
+        'org.springframework',
+        'com.fasterxml.jackson',
+        'javax.validation',
+        'org.hibernate',
+        'javax.servlet'
+    ];
+    dependencyUpdates.resolutionStrategy {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean springManaged = springManagedModules.any { module ->
+                    selection.candidate.group.startsWith(module)
+                }
+                if (springManaged) {
+                    selection.reject('Spring Managed')
+                }
+                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}\d*[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject('Release candidate')
+                }
+            }
+        }
+    }
+
     jar {
         manifest {
             attributes 'Implementation-Title': project.name,
@@ -124,7 +150,7 @@ subprojects {
     }
 
     lombok {
-        version = '1.18.0'
+        version = '1.18.2'
     }
 
     if (project.name.startsWith('1sample-')) {
@@ -172,6 +198,23 @@ subprojects {
 }
 
 [':line-bot-api-client', ':line-bot-model', ':line-bot-servlet', ':line-bot-spring-boot'].each { projectName ->
+task codeCoverageReport(type: JacocoReport) {
+    onlyIf = { true }
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    [':line-bot-api-client', ':line-bot-model', ':line-bot-servlet', ':line-bot-spring-boot', ':line-bot-cli'].each {
+        sourceSets(project(it).sourceSets.main)
+    }
+
+    reports {
+        xml.enabled true
+        xml.destination file('reports/jacoco/report.xml')
+        html.enabled true
+        csv.enabled false
+    }
+}
+
+[':line-bot-api-client', ':line-bot-model', ':line-bot-servlet', ':line-bot-spring-boot', ':line-bot-cli'].each { projectName ->
     project(projectName) { project ->
         apply plugin: 'signing'
         apply plugin: 'maven'
