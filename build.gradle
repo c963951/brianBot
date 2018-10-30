@@ -116,32 +116,6 @@ subprojects {
     compileJava.dependsOn(processResources)
     // http://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html#configuration-metadata-annotation-processor
 
-    def springManagedModules = [
-        'org.springframework',
-        'com.fasterxml.jackson',
-        'javax.validation',
-        'org.hibernate',
-        'javax.servlet'
-    ];
-    dependencyUpdates.resolutionStrategy {
-        componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean springManaged = springManagedModules.any { module ->
-                    selection.candidate.group.startsWith(module)
-                }
-                if (springManaged) {
-                    selection.reject('Spring Managed')
-                }
-                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
-                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}\d*[.\d-]*/
-                }
-                if (rejected) {
-                    selection.reject('Release candidate')
-                }
-            }
-        }
-    }
-
     jar {
         manifest {
             attributes 'Implementation-Title': project.name,
@@ -197,7 +171,6 @@ subprojects {
     }
 }
 
-[':line-bot-api-client', ':line-bot-model', ':line-bot-servlet', ':line-bot-spring-boot'].each { projectName ->
 task codeCoverageReport(type: JacocoReport) {
     onlyIf = { true }
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
