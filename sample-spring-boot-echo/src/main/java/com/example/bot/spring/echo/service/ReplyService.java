@@ -414,7 +414,7 @@ public class ReplyService {
             File file = File.createTempFile("audio", "w4a");
             FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
             AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
-            Map properties = baseFileFormat.properties();
+            Map<String, Object> properties = baseFileFormat.properties();
             Long duration = (Long)properties.get("duration");
             log.info("=======SoundText end=====");
             return new AudioMessage(location, (int)(duration / 1000000));
@@ -432,7 +432,7 @@ public class ReplyService {
             File file = File.createTempFile("audio", "w4a");
             FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
             AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
-            Map properties = baseFileFormat.properties();
+            Map<String, Object> properties = baseFileFormat.properties();
             Long duration = (Long)properties.get("duration");
             log.info("=======CloudTTs end=====");
             return new AudioMessage(location, (int)(duration / 1000000));
