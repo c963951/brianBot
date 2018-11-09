@@ -417,7 +417,7 @@ public class ReplyService {
             Map<String, Object> properties = baseFileFormat.properties();
             Long duration = (Long)properties.get("duration");
             log.info("=======SoundText end=====");
-            return new AudioMessage(location, (int)(duration / 1000));
+            return new AudioMessage(location, (int)(duration / 1000) + 1000);
         }
         catch (IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
@@ -435,7 +435,7 @@ public class ReplyService {
             Map<String, Object> properties = baseFileFormat.properties();
             Long duration = (Long)properties.get("duration");
             log.info("=======CloudTTs end=====");
-            return new AudioMessage(location, (int)(duration / 1000));
+            return new AudioMessage(location, (int)(duration / 1000) + 1000);
         }
         catch (IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
