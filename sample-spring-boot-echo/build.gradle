@@ -20,6 +20,7 @@ dependencies {
     compile project(':line-bot-spring-boot')
     compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
     compile 'se.walkercrou:google-places-api-java:2.1.7'
+    compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5.4'
     compile 'org.projectlombok:lombok:1.18.0'
     compile 'com.github.abola:crawler:1.1'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'

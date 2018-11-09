@@ -1,5 +1,6 @@
 package com.example.bot.spring.echo.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -13,6 +14,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpResponse;
@@ -52,6 +57,7 @@ import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 
+import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import lombok.extern.slf4j.Slf4j;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
@@ -102,28 +108,6 @@ public class ReplyService {
         String day = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac > h3").text();
         String article = CrawlerPack.start().getFromHtml(uri).select(".user-zodiac .article").text();
         return day + "\r\n" + article;
-    }
-
-    public AudioMessage getTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8"), 100);
-    }
-
-    public AudioMessage getCloudTTs(String word) throws IOException {
-        return new AudioMessage("https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8"),
-                100);
-    }
-
-    public class AudioContent {
-
-        private String audioContent;
-
-        public String getAudioContent() {
-            return audioContent;
-        }
-
-        public void setAudioContent(String audioContent) {
-            this.audioContent = audioContent;
-        }
     }
 
     public TemplateMessage getCarousel(double lat, double lng) {
@@ -408,5 +392,54 @@ public class ReplyService {
         }
         TemplateMessage templateMessage = new TemplateMessage("food", new CarouselTemplate(carusels));
         return templateMessage;
+    }
+
+    public class AudioContent {
+
+        private String audioContent;
+
+        public String getAudioContent() {
+            return audioContent;
+        }
+
+        public void setAudioContent(String audioContent) {
+            this.audioContent = audioContent;
+        }
+    }
+
+    public AudioMessage getTTs(String word) throws IOException {
+        log.info("=======SoundText start=====");
+        try {
+            String location = "https://c963951.herokuapp.com/tts/" + URLEncoder.encode(word + ".m4a", "UTF-8");
+            File file = File.createTempFile("audio", "w4a");
+            FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
+            AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
+            Map properties = baseFileFormat.properties();
+            Long duration = (Long)properties.get("duration");
+            log.info("=======SoundText end=====");
+            return new AudioMessage(location, (int)(duration / 1000000));
+        }
+        catch (IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public AudioMessage getCloudTTs(String word) throws IOException {
+        log.info("=======CloudTTs start=====");
+        try {
+            String location = "https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8");
+            File file = File.createTempFile("audio", "w4a");
+            FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
+            AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
+            Map properties = baseFileFormat.properties();
+            Long duration = (Long)properties.get("duration");
+            log.info("=======CloudTTs end=====");
+            return new AudioMessage(location, (int)(duration / 1000000));
+        }
+        catch (IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
