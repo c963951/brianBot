@@ -12,6 +12,11 @@ public class Voice {
     @Expose
     private String name;
 
+    public Voice(String lanuageCode, String name) {
+        this.languageCode = lanuageCode;
+        this.name = name;
+    }
+
     public String getLanguageCode() {
         return languageCode;
     }

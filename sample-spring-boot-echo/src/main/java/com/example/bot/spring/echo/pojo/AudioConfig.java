@@ -15,6 +15,12 @@ public class AudioConfig {
     @Expose
     private String speakingRate;
 
+    public AudioConfig(String audioEncoding, String pitch, String speakingRate) {
+        this.audioEncoding = audioEncoding;
+        this.pitch = pitch;
+        this.speakingRate = speakingRate;
+    }
+
     public String getAudioEncoding() {
         return audioEncoding;
     }

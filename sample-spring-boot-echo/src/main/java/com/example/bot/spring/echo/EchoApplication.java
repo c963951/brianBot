@@ -110,6 +110,9 @@ public class EchoApplication {
         else if (message.startsWith("speech")) {
             Messages.add(getSpeech(StringUtils.removeStart(message, "speech ")));
         }
+        else if (message.startsWith("-t")) {
+            Messages.add(getTranslateCard(StringUtils.removeStart(message, "-t ")));
+        }
         else if (message.equals("Botbye")) {
             if (source instanceof GroupSource) {
                 lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
@@ -137,7 +140,13 @@ public class EchoApplication {
         else if (source instanceof RoomSource) {
             pushId = ((RoomSource)source).getRoomId();
         }
-        Messages.add(getPlaces(data));
+        if (data.startsWith("g_")) {
+            Messages.add(getPlaces(data));
+        }
+        else {
+            Messages.addAll(getTranslate(data));
+        }
+
         push(channelToken, pushId, Messages);
     }
 
@@ -154,7 +163,7 @@ public class EchoApplication {
     }
 
     public AudioMessage getSpeech(String message) throws IOException, UnsupportedAudioFileException {
-        return rplys.getCloudTTs(message);
+        return rplys.getCloudTTs(message, null);
     }
 
     public TextMessage Horoscope(String message) {
@@ -180,7 +189,7 @@ public class EchoApplication {
     public TextMessage getNews() throws IOException {
         return new TextMessage(rplys.getNewsMessage());
     }
-    
+
     public TextMessage getSearch(String message) throws IOException {
         return new TextMessage(rplys.getSearchMessage(message));
     }
@@ -195,6 +204,14 @@ public class EchoApplication {
 
     public TemplateMessage getPlaces(String data) throws Exception {
         return rplys.getGooglePlaces(data);
+    }
+
+    public TemplateMessage getTranslateCard(String data) throws Exception {
+        return rplys.getTranslateCard(data);
+    }
+
+    public List<Message> getTranslate(String message) throws Exception {
+        return rplys.getTranslate(message);
     }
 
     private void push(@NonNull String channelToken, @NonNull String pushId, @NonNull List<Message> messages)

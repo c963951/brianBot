@@ -36,6 +36,7 @@ import com.example.bot.spring.echo.pojo.Article;
 import com.example.bot.spring.echo.pojo.Default;
 import com.example.bot.spring.echo.pojo.GoogleNews;
 import com.example.bot.spring.echo.pojo.Item;
+import com.example.bot.spring.echo.pojo.Translate;
 import com.example.bot.spring.echo.pojo.Youtube;
 import com.example.bot.spring.echo.pojo.serch.GoogleSearch;
 import com.github.abola.crawler.CrawlerPack;
@@ -113,14 +114,14 @@ public class ReplyService {
     public TemplateMessage getCarousel(double lat, double lng) {
         List<CarouselColumn> carusels = new ArrayList<>();
         CarouselColumn temp1 = new CarouselColumn(null, null, "googleMap",
-                Arrays.asList(new PostbackAction("找餐廳", lat + "," + lng + ",restaurant"),
-                        new PostbackAction("找咖啡廳", lat + "," + lng + ",cafe"),
-                        new PostbackAction("找bar", lat + "," + lng + ",bar")));
+                Arrays.asList(new PostbackAction("找餐廳", lat + "," + lng + ",g_restaurant"),
+                        new PostbackAction("找咖啡廳", lat + "," + lng + ",g_cafe"),
+                        new PostbackAction("找bar", lat + "," + lng + ",g_bar")));
         carusels.add(temp1);
         CarouselColumn temp2 = new CarouselColumn(null, null, "googleMap",
-                Arrays.asList(new PostbackAction("找捷運", lat + "," + lng + ",subway_station"),
-                        new PostbackAction("找停車場", lat + "," + lng + ",parking"),
-                        new PostbackAction("找加油站", lat + "," + lng + ",gas_station")));
+                Arrays.asList(new PostbackAction("找捷運", lat + "," + lng + ",g_subway_station"),
+                        new PostbackAction("找停車場", lat + "," + lng + ",g_parking"),
+                        new PostbackAction("找加油站", lat + "," + lng + ",g_gas_station")));
         carusels.add(temp2);
         TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
         return templateMessage;
@@ -131,7 +132,7 @@ public class ReplyService {
         if (datas.size() != 3) return null;
         double lat = Double.parseDouble(datas.get(0));
         double lng = Double.parseDouble(datas.get(1));
-        String place = datas.get(2);
+        String place = datas.get(2).replace("g_", "");
         String apiKey = "AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ";
         GooglePlaces client = new GooglePlaces(apiKey);
         List<Place> places = client.getNearbyPlacesRankedByDistance(lat, lng, Param.name("type").value(place),
@@ -394,19 +395,6 @@ public class ReplyService {
         return templateMessage;
     }
 
-    public class AudioContent {
-
-        private String audioContent;
-
-        public String getAudioContent() {
-            return audioContent;
-        }
-
-        public void setAudioContent(String audioContent) {
-            this.audioContent = audioContent;
-        }
-    }
-
     public AudioMessage getTTs(String word) throws IOException {
         log.info("=======SoundText start=====");
         try {
@@ -425,10 +413,14 @@ public class ReplyService {
         return null;
     }
 
-    public AudioMessage getCloudTTs(String word) throws IOException {
+    public AudioMessage getCloudTTs(String word, String voice) throws IOException {
         log.info("=======CloudTTs start=====");
+        if (voice == null) {
+            voice = "en";
+        }
         try {
-            String location = "https://c963951.herokuapp.com/googleTTs/" + URLEncoder.encode(word + ".m4a", "UTF-8");
+            String location = "https://c963951.herokuapp.com/googleTTs/" + voice + "/"
+                    + URLEncoder.encode(word + ".m4a", "UTF-8");
             File file = File.createTempFile("audio", "w4a");
             FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
             AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
@@ -441,5 +433,49 @@ public class ReplyService {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public TemplateMessage getTranslateCard(String data) {
+        List<CarouselColumn> carusels = new ArrayList<>();
+        CarouselColumn temp1 = new CarouselColumn(null, null, "translate",
+                Arrays.asList(new PostbackAction("英文", "en_" + data, "英文"),
+                        new PostbackAction("日文", "ja_" + data, "日文"), new PostbackAction("韓文", "ko_" + data, "韓文"),
+                        new PostbackAction("西文", "es_" + data, "西文"), new PostbackAction("德文", "de_" + data, "德文")));
+        carusels.add(temp1);
+        TemplateMessage templateMessage = new TemplateMessage("translate", new CarouselTemplate(carusels));
+        return templateMessage;
+    }
+
+    public List<Message> getTranslate(String data) {
+        List<Message> messages = new ArrayList<Message>();
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+            HttpGet request = new HttpGet(
+                    "https://translation.googleapis.com/language/translate/v2?source=zh-TW&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
+                            + URLEncoder.encode(data.substring(2), "UTF-8") + "&target=" + data.substring(0, 2));
+            request.addHeader("content-type", "application/json; charset=utf-8");
+            HttpResponse resp = httpClient.execute(request);
+            String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
+            Translate translate = new Gson().fromJson(result, Translate.class);
+            String word = translate.getData().getTranslations().get(0).getTranslatedText();
+            messages.add(new TextMessage(word));
+            messages.add(getCloudTTs(word,data.substring(0, 2)));
+
+        }
+        catch (IOException ex) {}
+        return messages;
+    }
+
+    public class AudioContent {
+
+        private String audioContent;
+
+        public String getAudioContent() {
+            return audioContent;
+        }
+
+        public void setAudioContent(String audioContent) {
+            this.audioContent = audioContent;
+        }
     }
 }

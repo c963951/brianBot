@@ -54,20 +54,29 @@ public class FileDownloadController {
         return;
     }
 
-    @GetMapping(value = "/googleTTs/{word}")
-    public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("word") String word)
-            throws IOException {
+    @GetMapping(value = "/googleTTs/{voice}/{word}")
+    public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("vioce") String vioce,
+            @PathVariable("word") String word) throws IOException {
+        String v1 = "en-US";
+        String v2 = "en-AU-Standard-C";
+        if("ja".equals(vioce)) {
+            v1 = "ja-JP";
+            v2 = "ja-JP-Standard-A";
+        } else if("ko".equals(vioce)) {
+            v1 = "ko-KR";
+            v2 = "ko-KR-Standard-A";
+        } else if("es".equals(vioce)) {
+            v1 = "es-ES";
+            v2 = "es-ES-Standard-A";
+        } else if("de".equals(vioce)) {
+            v1 = "de-DE";
+            v2 = "de-DE-Standard-A";
+        }
         Gson gson = new Gson();
         TextToSpeech tts = new TextToSpeech();
-        tts.setAudioConfig(new AudioConfig());
-        tts.setInput(new Input());
-        tts.setVoice(new Voice());
-        tts.getAudioConfig().setAudioEncoding("MP3");
-        tts.getAudioConfig().setPitch("0.00");
-        tts.getAudioConfig().setSpeakingRate("0.75");
-        tts.getInput().setText(URLDecoder.decode(word, "UTF-8"));
-        tts.getVoice().setLanguageCode("en-US");
-        tts.getVoice().setName("en-AU-Standard-C");
+        tts.setAudioConfig(new AudioConfig("MP3", "0.00", "0.75"));
+        tts.setInput(new Input(URLDecoder.decode(word, "UTF-8")));
+        tts.setVoice(new Voice(v1, v2));
         String json = gson.toJson(tts);
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost request = new HttpPost(
