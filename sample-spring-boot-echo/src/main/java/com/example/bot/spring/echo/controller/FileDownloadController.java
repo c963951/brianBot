@@ -10,12 +10,6 @@ import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +22,12 @@ import com.example.bot.spring.echo.pojo.TextToSpeech;
 import com.example.bot.spring.echo.pojo.Voice;
 import com.example.bot.spring.echo.service.ReplyService.AudioContent;
 import com.google.gson.Gson;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 @Controller
 public class FileDownloadController {
@@ -59,19 +59,23 @@ public class FileDownloadController {
             @PathVariable("word") String word) throws IOException {
         String v1 = "en-US";
         String v2 = "en-AU-Standard-C";
-        if("ja".equals(voice)) {
+        if ("ja".equals(voice)) {
             v1 = "ja-JP";
             v2 = "ja-JP-Standard-A";
-        } else if("ko".equals(voice)) {
+        }
+        else if ("ko".equals(voice)) {
             v1 = "ko-KR";
             v2 = "ko-KR-Standard-A";
-        } else if("es".equals(voice)) {
+        }
+        else if ("es".equals(voice)) {
             v1 = "es-ES";
             v2 = "es-ES-Standard-A";
-        } else if("de".equals(voice)) {
+        }
+        else if ("de".equals(voice)) {
             v1 = "de-DE";
             v2 = "de-DE-Standard-A";
-        } else if("fr".equals(voice)) {
+        }
+        else if ("fr".equals(voice)) {
             v1 = "fr-CA";
             v2 = "fr-CA-Standard-A";
         }
@@ -81,15 +85,14 @@ public class FileDownloadController {
         tts.setInput(new Input(URLDecoder.decode(word, "UTF-8")));
         tts.setVoice(new Voice(v1, v2));
         String json = gson.toJson(tts);
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
-            HttpPost request = new HttpPost(
-                    "https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ");
-            StringEntity params = new StringEntity(json);
-            request.addHeader("content-type", "application/json; charset=utf-8");
-            request.setEntity(params);
-            HttpResponse resp = httpClient.execute(request);
-            String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
-            AudioContent audioContent = gson.fromJson(result, AudioContent.class);
+        try {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+            Request request = new Request.Builder().url(
+                    "https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk")
+                    .post(body).build();
+            Response resp = client.newCall(request).execute();
+            AudioContent audioContent = gson.fromJson(resp.body().string(), AudioContent.class);
             byte[] bytes = Base64.getDecoder().decode(audioContent.getAudioContent());
             ByteArrayInputStream oInstream = new ByteArrayInputStream(bytes);
             response.reset();
@@ -99,7 +102,7 @@ public class FileDownloadController {
             response.setHeader("x-xss-protection", "1; mode=block");
             response.setHeader("status", "200");
             response.setHeader("server", "HTTP");
-            response.setContentLength((int)resp.getEntity().getContentLength());
+            response.setContentLength((int)resp.body().contentLength());
             FileCopyUtils.copy(oInstream, response.getOutputStream());
             oInstream.close();
         }

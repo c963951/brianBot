@@ -60,6 +60,9 @@ import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
 import se.walkercrou.places.Place;
@@ -452,28 +455,15 @@ public class ReplyService {
 
     public List<Message> getTranslate(String data) {
         List<Message> messages = new ArrayList<Message>();
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+        try {
             String target = data.substring(0, 2);
-            HttpGet req1 = new HttpGet(
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(
                     "https://translation.googleapis.com/language/translate/v2?source=zh-TW&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
-                            + URLEncoder.encode(data.substring(3), "UTF-8") + "&target=en");
-            req1.addHeader("content-type", "application/json; charset=utf-8");
-            HttpResponse resp1 = httpClient.execute(req1);
-            String result1 = EntityUtils.toString(resp1.getEntity(), "UTF-8");
-            Translate en = new Gson().fromJson(result1, Translate.class);
-            String enword = en.getData().getTranslations().get(0).getTranslatedText();
-            if ("en".equals(target)) {
-                messages.add(new TextMessage(enword));
-                messages.add(getCloudTTs(enword, target));
-                return messages;
-            }
-            HttpGet request = new HttpGet(
-                    "https://translation.googleapis.com/language/translate/v2?source=en&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
-                            + URLEncoder.encode(enword, "UTF-8") + "&target=" + target);
-            request.addHeader("content-type", "application/json; charset=utf-8");
-            HttpResponse response = httpClient.execute(request);
-            String result2 = EntityUtils.toString(response.getEntity(), "UTF-8");
-            Translate translate = new Gson().fromJson(result2, Translate.class);
+                            + data.substring(3) + "&target=" + target)
+                    .build();
+            Response resp = client.newCall(request).execute();
+            Translate translate = new Gson().fromJson(resp.body().string(), Translate.class);
             String word = translate.getData().getTranslations().get(0).getTranslatedText();
             messages.add(new TextMessage(word));
             messages.add(getCloudTTs(word, target));
