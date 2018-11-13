@@ -452,17 +452,23 @@ public class ReplyService {
 
     public List<Message> getTranslate(String data) {
         List<Message> messages = new ArrayList<Message>();
-        System.out.println("data===============" + data);
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
-            HttpGet request = new HttpGet(
+            HttpGet req1 = new HttpGet(
                     "https://translation.googleapis.com/language/translate/v2?source=zh-TW&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
-                            + URLEncoder.encode(data.substring(3), "UTF-8") + "&target=" + data.substring(0, 2));
+                            + URLEncoder.encode(data.substring(3), "UTF-8") + "&target=en");
+            req1.addHeader("content-type", "application/json; charset=utf-8");
+            HttpResponse resp1 = httpClient.execute(req1);
+            String result1 = EntityUtils.toString(resp1.getEntity(), "UTF-8");
+            Translate en = new Gson().fromJson(result1, Translate.class);
+            String enword = en.getData().getTranslations().get(0).getTranslatedText();
+            HttpGet request = new HttpGet(
+                    "https://translation.googleapis.com/language/translate/v2?source=en&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
+                            + URLEncoder.encode(enword, "UTF-8") + "&target="+data.substring(0, 2));
             request.addHeader("content-type", "application/json; charset=utf-8");
-            HttpResponse resp = httpClient.execute(request);
-            String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
-            Translate translate = new Gson().fromJson(result, Translate.class);
+            HttpResponse response = httpClient.execute(request);
+            String result2 = EntityUtils.toString(response.getEntity(), "UTF-8");
+            Translate translate = new Gson().fromJson(result2, Translate.class);
             String word = translate.getData().getTranslations().get(0).getTranslatedText();
-            System.out.println(word + "====" + data.substring(0, 2));
             messages.add(new TextMessage(word));
             messages.add(getCloudTTs(word, data.substring(0, 2)));
 
