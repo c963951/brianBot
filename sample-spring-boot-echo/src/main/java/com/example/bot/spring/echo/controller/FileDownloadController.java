@@ -54,24 +54,24 @@ public class FileDownloadController {
         return;
     }
 
-    @GetMapping(value = "/googleTTs/{voice}/temp/{word}")
-    public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("vioce") String vioce,
+    @GetMapping(value = "/googleTTs/{voice}/{word}")
+    public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("voice") String voice,
             @PathVariable("word") String word) throws IOException {
         String v1 = "en-US";
         String v2 = "en-AU-Standard-C";
-        if("ja".equals(vioce)) {
+        if("ja".equals(voice)) {
             v1 = "ja-JP";
             v2 = "ja-JP-Standard-A";
-        } else if("ko".equals(vioce)) {
+        } else if("ko".equals(voice)) {
             v1 = "ko-KR";
             v2 = "ko-KR-Standard-A";
-        } else if("es".equals(vioce)) {
+        } else if("es".equals(voice)) {
             v1 = "es-ES";
             v2 = "es-ES-Standard-A";
-        } else if("de".equals(vioce)) {
+        } else if("de".equals(voice)) {
             v1 = "de-DE";
             v2 = "de-DE-Standard-A";
-        } else if("fr".equals(vioce)) {
+        } else if("fr".equals(voice)) {
             v1 = "fr-CA";
             v2 = "fr-CA-Standard-A";
         }
