@@ -77,13 +77,13 @@ public class FileDownloadController {
         }
         Gson gson = new Gson();
         TextToSpeech tts = new TextToSpeech();
-        tts.setAudioConfig(new AudioConfig("MP3", "0.00", "0.75"));
+        tts.setAudioConfig(new AudioConfig("MP3", "0.00", "1.00"));
         tts.setInput(new Input(URLDecoder.decode(word, "UTF-8")));
         tts.setVoice(new Voice(v1, v2));
         String json = gson.toJson(tts);
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost request = new HttpPost(
-                    "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ");
+                    "https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyCxcqIXbtwQxokBl8CxFEFBChXWU35-5QQ");
             StringEntity params = new StringEntity(json);
             request.addHeader("content-type", "application/json; charset=utf-8");
             request.setEntity(params);
