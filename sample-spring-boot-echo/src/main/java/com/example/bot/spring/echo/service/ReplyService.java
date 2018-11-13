@@ -440,9 +440,12 @@ public class ReplyService {
         List<CarouselColumn> carusels = new ArrayList<>();
         CarouselColumn temp1 = new CarouselColumn(null, null, "translate",
                 Arrays.asList(new PostbackAction("英文", "en_" + data, "英文"),
-                        new PostbackAction("日文", "ja_" + data, "日文"), new PostbackAction("韓文", "ko_" + data, "韓文"),
-                        new PostbackAction("西文", "es_" + data, "西文"), new PostbackAction("德文", "de_" + data, "德文")));
+                        new PostbackAction("日文", "ja_" + data, "日文"), new PostbackAction("韓文", "ko_" + data, "韓文")));
         carusels.add(temp1);
+        CarouselColumn temp2 = new CarouselColumn(null, null, "translate",
+                Arrays.asList(new PostbackAction("西文", "es_" + data, "西文"),
+                        new PostbackAction("法文", "fr_" + data, "法文"), new PostbackAction("德文", "de_" + data, "德文")));
+        carusels.add(temp2);
         TemplateMessage templateMessage = new TemplateMessage("translate", new CarouselTemplate(carusels));
         return templateMessage;
     }
@@ -459,7 +462,7 @@ public class ReplyService {
             Translate translate = new Gson().fromJson(result, Translate.class);
             String word = translate.getData().getTranslations().get(0).getTranslatedText();
             messages.add(new TextMessage(word));
-            messages.add(getCloudTTs(word,data.substring(0, 2)));
+            messages.add(getCloudTTs(word, data.substring(0, 2)));
 
         }
         catch (IOException ex) {}

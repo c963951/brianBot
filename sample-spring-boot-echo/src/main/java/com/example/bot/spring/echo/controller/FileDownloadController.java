@@ -71,6 +71,9 @@ public class FileDownloadController {
         } else if("de".equals(vioce)) {
             v1 = "de-DE";
             v2 = "de-DE-Standard-A";
+        } else if("fr".equals(vioce)) {
+            v1 = "fr-CA";
+            v2 = "fr-CA-Standard-A";
         }
         Gson gson = new Gson();
         TextToSpeech tts = new TextToSpeech();
