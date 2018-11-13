@@ -419,7 +419,7 @@ public class ReplyService {
             voice = "en";
         }
         try {
-            String location = "https://c963951.herokuapp.com/googleTTs/" + voice + "/"
+            String location = "https://c963951.herokuapp.com/googleTTs/" + voice + "/temp/"
                     + URLEncoder.encode(word + ".m4a", "UTF-8");
             File file = File.createTempFile("audio", "w4a");
             FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
@@ -452,15 +452,17 @@ public class ReplyService {
 
     public List<Message> getTranslate(String data) {
         List<Message> messages = new ArrayList<Message>();
+        System.out.println("data===============" + data);
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet request = new HttpGet(
                     "https://translation.googleapis.com/language/translate/v2?source=zh-TW&format=text&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
-                            + URLEncoder.encode(data.substring(2), "UTF-8") + "&target=" + data.substring(0, 2));
+                            + URLEncoder.encode(data.substring(3), "UTF-8") + "&target=" + data.substring(0, 2));
             request.addHeader("content-type", "application/json; charset=utf-8");
             HttpResponse resp = httpClient.execute(request);
             String result = EntityUtils.toString(resp.getEntity(), "UTF-8");
             Translate translate = new Gson().fromJson(result, Translate.class);
             String word = translate.getData().getTranslations().get(0).getTranslatedText();
+            System.out.println(word + "====" + data.substring(0, 2));
             messages.add(new TextMessage(word));
             messages.add(getCloudTTs(word, data.substring(0, 2)));
 

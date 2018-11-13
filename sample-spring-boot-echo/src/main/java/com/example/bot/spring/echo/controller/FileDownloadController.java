@@ -54,7 +54,7 @@ public class FileDownloadController {
         return;
     }
 
-    @GetMapping(value = "/googleTTs/{voice}/{word}")
+    @GetMapping(value = "/googleTTs/{voice}/temp/{word}")
     public @ResponseBody void googleTTs(HttpServletResponse response, @PathVariable("vioce") String vioce,
             @PathVariable("word") String word) throws IOException {
         String v1 = "en-US";
