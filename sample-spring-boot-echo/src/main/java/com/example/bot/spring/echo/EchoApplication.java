@@ -110,9 +110,10 @@ public class EchoApplication {
         else if (message.startsWith("speech")) {
             Messages.add(getSpeech(StringUtils.removeStart(message, "speech ")));
         }
-//        else if (message.startsWith("-t")) {
-//            Messages.add(getTranslateCard(StringUtils.removeStart(message, "-t ")));
-//        }
+        // else if (message.startsWith("-t")) {
+        // Messages.add(getTranslateCard(StringUtils.removeStart(message, "-t
+        // ")));
+        // }
         else if (message.equals("Botbye")) {
             if (source instanceof GroupSource) {
                 lineMessagingClient.leaveGroup(((GroupSource)source).getGroupId()).get();
@@ -140,12 +141,9 @@ public class EchoApplication {
         else if (source instanceof RoomSource) {
             pushId = ((RoomSource)source).getRoomId();
         }
-        if (data.startsWith("g_")) {
-            Messages.add(getPlaces(data));
-        }
-        else {
-            Messages.addAll(getTranslate(data));
-        }
+        System.out.println("data=================="+data);
+        Messages.add(getPlaces(data));
+
 
         push(channelToken, pushId, Messages);
     }

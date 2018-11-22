@@ -124,7 +124,7 @@ public class ReplyService {
         CarouselColumn temp2 = new CarouselColumn(null, null, "googleMap",
                 Arrays.asList(new PostbackAction("找捷運", "g_" + lat + "," + lng + ",subway_station", "g_subway_station"),
                         new PostbackAction("找停車場", "g_" + lat + "," + lng + ",parking", "g_parking"),
-                        new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "")));
+                        new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "g_gas_station")));
         carusels.add(temp2);
         TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
         return templateMessage;
