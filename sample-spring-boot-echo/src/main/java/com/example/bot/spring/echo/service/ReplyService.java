@@ -424,7 +424,7 @@ public class ReplyService {
         try {
             String location = "https://c963951.herokuapp.com/googleTTs/" + voice + "/"
                     + URLEncoder.encode(word + ".m4a", "UTF-8");
-            File file = File.createTempFile("audio", "w4a");
+            File file = File.createTempFile("audio", "m4a");
             FileUtils.copyURLToFile(new URL(location), file, 1000, 600000);
             AudioFileFormat baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(file);
             Map<String, Object> properties = baseFileFormat.properties();

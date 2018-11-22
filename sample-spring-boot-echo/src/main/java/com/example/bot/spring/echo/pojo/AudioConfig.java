@@ -44,5 +44,4 @@ public class AudioConfig {
     public void setSpeakingRate(String speakingRate) {
         this.speakingRate = speakingRate;
     }
-
 }
