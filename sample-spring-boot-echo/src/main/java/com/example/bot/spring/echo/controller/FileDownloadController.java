@@ -42,7 +42,7 @@ public class FileDownloadController {
         InputStream inn = urlConn.getInputStream();
         int cl = urlConn.getContentLength();
         response.reset();
-        response.setContentType("audio/mpeg");
+        response.setContentType("audio/x-m4a");
         response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
         response.setHeader("x-content-type-options", "nosniff");
         response.setHeader("x-xss-protection", "1; mode=block");
@@ -96,13 +96,13 @@ public class FileDownloadController {
             byte[] bytes = Base64.getDecoder().decode(audioContent.getAudioContent());
             ByteArrayInputStream oInstream = new ByteArrayInputStream(bytes);
             response.reset();
-            response.setContentType("audio/mpeg");
+            response.setContentType("audio/x-m4a");
             response.setHeader("alt-svc", "quic=:443; ma=2592000; v=44,43,39,35");
             response.setHeader("x-content-type-options", "nosniff");
             response.setHeader("x-xss-protection", "1; mode=block");
             response.setHeader("status", "200");
             response.setHeader("server", "HTTP");
-            response.setContentLength((int)resp.body().contentLength());
+            response.setContentLength(bytes.length);
             FileCopyUtils.copy(oInstream, response.getOutputStream());
             oInstream.close();
         }
