@@ -117,21 +117,21 @@ public class ReplyService {
     public TemplateMessage getCarousel(double lat, double lng) {
         List<CarouselColumn> carusels = new ArrayList<>();
         CarouselColumn temp1 = new CarouselColumn(null, null, "googleMap",
-                Arrays.asList(new PostbackAction("找餐廳", lat + "," + lng + ",restaurant","g_restaurant"),
-                        new PostbackAction("找咖啡廳", lat + "," + lng + ",cafe","g_cafe"),
-                        new PostbackAction("找bar", lat + "," + lng + ",bar","g_bar")));
+                Arrays.asList(new PostbackAction("找餐廳", "g_" + lat + "," + lng + ",restaurant", "g_restaurant"),
+                        new PostbackAction("找咖啡廳", "g_" + lat + "," + lng + ",cafe", "g_cafe"),
+                        new PostbackAction("找bar", "g_" + lat + "," + lng + ",bar", "g_bar")));
         carusels.add(temp1);
         CarouselColumn temp2 = new CarouselColumn(null, null, "googleMap",
-                Arrays.asList(new PostbackAction("找捷運", lat + "," + lng + ",subway_station","g_subway_station"),
-                        new PostbackAction("找停車場", lat + "," + lng + ",parking","g_parking"),
-                        new PostbackAction("找加油站", lat + "," + lng + ",gas_station","g_gas_station")));
+                Arrays.asList(new PostbackAction("找捷運", "g_" + lat + "," + lng + ",subway_station", "g_subway_station"),
+                        new PostbackAction("找停車場", "g_" + lat + "," + lng + ",parking", "g_parking"),
+                        new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "")));
         carusels.add(temp2);
         TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
         return templateMessage;
     }
 
     public TemplateMessage getGooglePlaces(String data) throws JSONException {
-        List<String> datas = Arrays.asList(StringUtils.split(data, ","));
+        List<String> datas = Arrays.asList(StringUtils.split(data.substring(2), ","));
         if (datas.size() != 3) return null;
         double lat = Double.parseDouble(datas.get(0));
         double lng = Double.parseDouble(datas.get(1));

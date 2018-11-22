@@ -89,7 +89,7 @@ public class FileDownloadController {
             OkHttpClient client = new OkHttpClient();
             RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
             Request request = new Request.Builder().url(
-                    "https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk")
+                    "https://texttospeech.googleapis.com//v1beta1/text:synthesize?key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk")
                     .post(body).build();
             Response resp = client.newCall(request).execute();
             AudioContent audioContent = gson.fromJson(resp.body().string(), AudioContent.class);
