@@ -79,7 +79,7 @@ public class ReplyService {
     public String getTagMessage(CompletableFuture<MembersIdsResponse> member) throws ExecutionException, InterruptedException {
         List<String> list = member.get().getMemberIds();
         return list.stream().map(x -> x)
-                .collect(Collectors.joining(" ", "@", ""));
+                .collect(Collectors.joining(" @", "@", ""));
     }
 
     public String getGasMessage() {
