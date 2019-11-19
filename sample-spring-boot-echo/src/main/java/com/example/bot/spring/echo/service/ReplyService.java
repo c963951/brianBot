@@ -77,9 +77,11 @@ import se.walkercrou.places.Place;
 public class ReplyService {
 
     public String getTagMessage(CompletableFuture<MembersIdsResponse> member) throws ExecutionException, InterruptedException {
-        List<String> list = member.get().getMemberIds();
+        MembersIdsResponse response= member.get();
+       List<String> list = member.getNow(response).getMemberIds();
         return list.stream().map(x -> x)
                 .collect(Collectors.joining(" @", "@", ""));
+//        return "";
     }
 
     public String getGasMessage() {
