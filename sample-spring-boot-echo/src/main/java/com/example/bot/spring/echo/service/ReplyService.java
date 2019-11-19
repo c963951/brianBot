@@ -10,13 +10,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.linecorp.bot.model.event.source.GroupSource;
+import com.linecorp.bot.model.event.source.Source;
+import com.linecorp.bot.model.profile.MembersIdsResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -70,6 +75,12 @@ import se.walkercrou.places.Place;
 @Service
 @Slf4j
 public class ReplyService {
+
+    public String getTagMessage(CompletableFuture<MembersIdsResponse> member) throws ExecutionException, InterruptedException {
+        List<String> list = member.get().getMemberIds();
+        return list.stream().map(x -> x)
+                .collect(Collectors.joining(" ", "@", ""));
+    }
 
     public String getGasMessage() {
         String ratePage = "http://www.taiwanoil.org/z.php?z=oiltw";

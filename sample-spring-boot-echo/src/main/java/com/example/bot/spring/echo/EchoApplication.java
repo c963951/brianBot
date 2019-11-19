@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.linecorp.bot.model.profile.MembersIdsResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -77,7 +79,11 @@ public class EchoApplication {
 
         String message = event.getMessage().getText();
         String keyworad = message.substring(1);
-        if (message.startsWith("%")) {
+        if (message.equals("@所有人") && source instanceof GroupSource) {
+            CompletableFuture<MembersIdsResponse> member = lineMessagingClient.getGroupMembersIds(pushId,null);
+            Messages.add(tagAll(member));
+        }
+        else if (message.startsWith("%")) {
             Messages.add(PTT(keyworad));
         }
         else if (message.startsWith("##")) {
@@ -146,6 +152,10 @@ public class EchoApplication {
 
 
         push(channelToken, pushId, Messages);
+    }
+
+    public TextMessage tagAll(CompletableFuture<MembersIdsResponse> member) throws ExecutionException, InterruptedException {
+        return new TextMessage(rplys.getTagMessage(member));
     }
 
     public TextMessage PTT(String message) {
