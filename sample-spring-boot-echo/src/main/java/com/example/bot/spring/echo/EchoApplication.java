@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.linecorp.bot.model.message.*;
 import com.linecorp.bot.model.profile.MembersIdsResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,6 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
-import com.linecorp.bot.model.message.AudioMessage;
-import com.linecorp.bot.model.message.Message;
-import com.linecorp.bot.model.message.TemplateMessage;
-import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -206,7 +203,7 @@ public class EchoApplication {
         return rplys.getSpotify(message);
     }
 
-    public TemplateMessage getPost(double lat, double lng) throws Exception {
+    public FlexMessage getPost(double lat, double lng) throws Exception {
         return rplys.getCarousel(lat, lng);
     }
 

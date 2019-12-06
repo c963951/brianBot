@@ -21,6 +21,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.Source;
+import com.linecorp.bot.model.message.*;
+import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.Button;
+import com.linecorp.bot.model.message.flex.component.Separator;
+import com.linecorp.bot.model.message.flex.component.Spacer;
+import com.linecorp.bot.model.message.flex.container.Bubble;
+import com.linecorp.bot.model.message.flex.container.Carousel;
+import com.linecorp.bot.model.message.flex.unit.FlexLayout;
+import com.linecorp.bot.model.message.flex.unit.FlexMarginSize;
 import com.linecorp.bot.model.profile.MembersIdsResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,11 +57,6 @@ import com.github.abola.crawler.CrawlerPack;
 import com.google.gson.Gson;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
-import com.linecorp.bot.model.message.AudioMessage;
-import com.linecorp.bot.model.message.ImageMessage;
-import com.linecorp.bot.model.message.Message;
-import com.linecorp.bot.model.message.TemplateMessage;
-import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.wrapper.spotify.SpotifyApi;
@@ -71,6 +75,8 @@ import okhttp3.Response;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
 import se.walkercrou.places.Place;
+
+import static java.util.Arrays.asList;
 
 @Service
 @Slf4j
@@ -127,20 +133,104 @@ public class ReplyService {
         return day + "\r\n" + article;
     }
 
-    public TemplateMessage getCarousel(double lat, double lng) {
-        List<CarouselColumn> carusels = new ArrayList<>();
-        CarouselColumn temp1 = new CarouselColumn(null, null, "googleMap",
-                Arrays.asList(new PostbackAction("找餐廳", "g_" + lat + "," + lng + ",restaurant", "g_restaurant"),
-                        new PostbackAction("找咖啡廳", "g_" + lat + "," + lng + ",cafe", "g_cafe"),
-                        new PostbackAction("找bar", "g_" + lat + "," + lng + ",bar", "g_bar")));
-        carusels.add(temp1);
+    public FlexMessage getCarousel(double lat, double lng) {
+//        List<CarouselColumn> carusels = new ArrayList<>();
+//        CarouselColumn temp1 = new CarouselColumn(null, null, "googleMap",
+//                Arrays.asList(new PostbackAction("找餐廳", "g_" + lat + "," + lng + ",restaurant", "g_restaurant"),
+//                        new PostbackAction("找咖啡廳", "g_" + lat + "," + lng + ",cafe", "g_cafe"),
+//                        new PostbackAction("找bar", "g_" + lat + "," + lng + ",bar", "g_bar")));
+//        carusels.add(temp1);
+//        CarouselColumn temp2 = new CarouselColumn(null, null, "googleMap",
+//                Arrays.asList(new PostbackAction("找捷運", "g_" + lat + "," + lng + ",subway_station", "g_subway_station"),
+//                        new PostbackAction("找停車場", "g_" + lat + "," + lng + ",parking", "g_parking"),
+//                        new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "g_gas_station")));
+//        carusels.add(temp2);
+        List<Bubble> contents = new ArrayList<>();
+        com.linecorp.bot.model.message.flex.component.Image heroBlock =
+                com.linecorp.bot.model.message.flex.component.Image.builder()
+                        .url("https://example.com/cafe.jpg")
+                        .size(com.linecorp.bot.model.message.flex.component.Image.ImageSize.FULL_WIDTH)
+                        .aspectRatio(com.linecorp.bot.model.message.flex.component.Image.ImageAspectRatio.R20TO13)
+                        .aspectMode(com.linecorp.bot.model.message.flex.component.Image.ImageAspectMode.Cover)
+                        .build();
+        Bubble bubble1 =
+                Bubble.builder()
+                        .hero(heroBlock)
+                        .body(createFooterBlock( lat,  lng))
+                        .build();
+        Bubble bubble2 =
+                Bubble.builder()
+                        .hero(heroBlock)
+                        .body(createFooterBlock2( lat,  lng))
+                        .build();
+        contents.add(bubble1);
+        contents.add(bubble2);
+        Carousel carousel = new Carousel(contents);
+        FlexMessage flexMessage = new FlexMessage("",carousel);
+//        TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
+        return flexMessage;
+    }
+
+    private Box createFooterBlock(double lat, double lng) {
+        Spacer spacer = Spacer.builder().size(FlexMarginSize.SM).build();
+        Separator separator = Separator.builder().build();
+        Button restaurantAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找餐廳", "g_" + lat + "," + lng + ",restaurant", "g_restaurant"))
+                        .build();
+        Button coffeeAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找咖啡廳", "g_" + lat + "," + lng + ",cafe", "g_cafe"))
+                        .build();
+        Button barAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找bar", "g_" + lat + "," + lng + ",bar", "g_bar"))
+                        .build();
+
+        return Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .spacing(FlexMarginSize.SM)
+                .contents(asList(spacer, restaurantAction, separator, coffeeAction, separator, barAction))
+                .build();
+    }
+
+    private Box createFooterBlock2(double lat, double lng) {
         CarouselColumn temp2 = new CarouselColumn(null, null, "googleMap",
                 Arrays.asList(new PostbackAction("找捷運", "g_" + lat + "," + lng + ",subway_station", "g_subway_station"),
                         new PostbackAction("找停車場", "g_" + lat + "," + lng + ",parking", "g_parking"),
                         new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "g_gas_station")));
-        carusels.add(temp2);
-        TemplateMessage templateMessage = new TemplateMessage("findPlace", new CarouselTemplate(carusels));
-        return templateMessage;
+        Spacer spacer = Spacer.builder().size(FlexMarginSize.SM).build();
+        Separator separator = Separator.builder().build();
+        Button MRTAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找捷運", "g_" + lat + "," + lng + ",subway_station", "g_subway_station"))
+                        .build();
+        Button parkAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找停車場", "g_" + lat + "," + lng + ",parking", "g_parking"))
+                        .build();
+        Button gasAction =
+                Button.builder()
+                        .style(Button.ButtonStyle.LINK)
+                        .height(Button.ButtonHeight.SMALL)
+                        .action(new PostbackAction("找加油站", "g_" + lat + "," + lng + ",gas_station", "g_gas_station"))
+                        .build();
+
+        return Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .spacing(FlexMarginSize.SM)
+                .contents(asList(spacer, MRTAction, separator, parkAction, separator, gasAction))
+                .build();
     }
 
     public TemplateMessage getGooglePlaces(String data) throws JSONException {
@@ -335,7 +425,7 @@ public class ReplyService {
     }
 
     public String getSearchMessage(String queryTerm) throws IOException {
-        log.info("=======youtube start=====");
+        log.info("=======SearchMessage start=====");
         StringBuffer sb = new StringBuffer();
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet request = new HttpGet(
@@ -356,7 +446,7 @@ public class ReplyService {
     }
 
     public List<Message> getYoutube(String queryTerm) throws IOException {
-        log.info("=======Search start=====");
+        log.info("=======youtube start=====");
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet request = new HttpGet(
                     "https://www.googleapis.com/youtube/v3/search?part=id,snippet&regionCode=TW&type=video&key=AIzaSyDrWDpehcmxXo4gaqSL2AttQ3UZudOtgyk&q="
